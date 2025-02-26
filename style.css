@@ -17,7 +17,10 @@ body {
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    justify-content: center;
+    align-items: center;
 }
 
 canvas {
@@ -26,32 +29,36 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
 }
 
 .game-title {
-    font-size: 24px;
-    z-index: 2;
+    font-size: 28px;
+    margin-bottom: 10px;
     position: relative;
+    z-index: 2;
 }
 
 .game-subtitle {
     font-size: 14px;
-    margin-bottom: 20px;
-    z-index: 2;
+    margin-bottom: 30px;
     position: relative;
+    z-index: 2;
 }
 
 button {
     font-size: 14px;
     padding: 10px 20px;
     margin: 10px;
-    background: white;
-    color: black;
-    border: none;
+    background: transparent; /* 투명 버튼 */
+    color: white;
+    border: 2px solid white; /* 테두리 유지 */
     cursor: pointer;
     font-family: 'Press Start 2P', cursive;
+    z-index: 2;
+    transition: 0.3s;
 }
 
 button:hover {
-    background: gray;
+    background: rgba(255, 255, 255, 0.2); /* 살짝 투명 배경 */
 }
