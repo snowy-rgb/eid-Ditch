@@ -112,19 +112,19 @@ function moveToRoom(x, y, entryDirection) {
     // 현재 방을 이동한 방으로 변경
     currentRoom = visitedRooms[roomKey];
 
-    // 🚪 이동 후 플레이어가 반대편 출입구로 나오도록 설정
-    if (entryDirection === "up") {
-        player.x = GAME_WIDTH / 2;
-        player.y = GAME_HEIGHT - TILE_SIZE * 1.5; // 아래쪽 출입구로 이동
-    } else if (entryDirection === "down") {
+    // 🚪 이동 후 반대편 출입구로 나오도록 설정
+    if (entryDirection === "down") {
         player.x = GAME_WIDTH / 2;
         player.y = TILE_SIZE * 1.5; // 위쪽 출입구로 이동
-    } else if (entryDirection === "left") {
-        player.x = GAME_WIDTH - TILE_SIZE * 1.5;
-        player.y = GAME_HEIGHT / 2; // 오른쪽 출입구로 이동
+    } else if (entryDirection === "up") {
+        player.x = GAME_WIDTH / 2;
+        player.y = GAME_HEIGHT - TILE_SIZE * 1.5; // 아래쪽 출입구로 이동
     } else if (entryDirection === "right") {
         player.x = TILE_SIZE * 1.5;
         player.y = GAME_HEIGHT / 2; // 왼쪽 출입구로 이동
+    } else if (entryDirection === "left") {
+        player.x = GAME_WIDTH - TILE_SIZE * 1.5;
+        player.y = GAME_HEIGHT / 2; // 오른쪽 출입구로 이동
     }
 
     console.log(`✅ 플레이어 위치: (${player.x}, ${player.y})`);
@@ -155,40 +155,31 @@ function movePlayer() {
     if (keys.a) nextX -= player.speed;
     if (keys.d) nextX += player.speed;
 
+    // 🔥 실제 타일 위치를 정확하게 계산
     let tileX = Math.floor(nextX / TILE_SIZE);
     let tileY = Math.floor(nextY / TILE_SIZE);
     let tile = currentRoom.grid[tileY][tileX];
 
-    console.log(`플레이어 위치: (${tileX}, ${tileY}), 현재 타일: ${tile}`); // 🔥 디버깅
+    console.log(`플레이어 위치: (${tileX}, ${tileY}), 현재 타일: ${tile}`);
 
-    // 🚧 벽(1) & 장애물(3)은 이동 불가
-    if (tile === 1 || tile === 3) return;
-    
+    // 🚧 벽(1) 충돌 방지
+    if (tile === 1) return;
+
+    // 🚪 출입구(2) 이동 처리
     if (tile === 2) {
         console.log("🚪 출입구를 밟음! 방 이동 시작!");
         
-        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1, "up"); // 위쪽 출입구
-        else if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1, "down"); // 아래쪽 출입구
-        else if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y, "left"); // 왼쪽 출입구
-        else if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y, "right"); // 오른쪽 출입구
+        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1, "up");
+        else if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1, "down");
+        else if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y, "left");
+        else if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y, "right");
     }
 
     player.x = nextX;
     player.y = nextY;
 }
 
-// 방 이동 함수
-function moveToRoom(x, y) {
-    const roomKey = `${x},${y}`;
 
-    if (!visitedRooms[roomKey]) {
-        visitedRooms[roomKey] = new Room(x, y, currentRoom);
-    }
-
-    currentRoom = visitedRooms[roomKey];
-    player.x = GAME_WIDTH / 2;
-    player.y = GAME_HEIGHT / 2;
-}
 
 // 🎯 **방 & 장애물 그리기**
 function drawRoom() {
@@ -196,18 +187,23 @@ function drawRoom() {
         for (let j = 0; j < currentRoom.width; j++) {
             let tile = currentRoom.grid[i][j];
 
+            // 🔥 보이는 타일과 충돌 판정이 동일하도록 정확한 크기와 위치 설정
+            let drawX = j * TILE_SIZE;
+            let drawY = i * TILE_SIZE;
+
             if (tile === 1) {
                 ctx.fillStyle = "gray"; // 벽
             } else if (tile === 2) {
                 ctx.fillStyle = "yellow"; // 출입구
             } else {
-                ctx.fillStyle = "black"; // 바닥
+                ctx.fillStyle = "black"; // 빈 공간
             }
 
-            ctx.fillRect(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
         }
     }
 }
+
 
 
 
