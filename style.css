@@ -40,9 +40,9 @@ canvas {
 }
 
 .game-title {
-    font-size: 28px;
+    font-size: 38px;
     font-family: 'OneStoreMobileGothicPop', Arial, sans-serif;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 2;
 }
