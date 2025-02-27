@@ -61,9 +61,15 @@ window.addEventListener("resize", () => {
 //음악및 시작 인터페이스
 document.addEventListener("DOMContentLoaded", () => {
     let openingScreen = document.getElementById("openingScreen");
-    let startGameButton = document.getElementById("startGame");
+    let startGameButton = document.getElementById("start-btn"); // ✅ startGame → start-btn 변경
     let bgm = document.getElementById("bgm");
     let introText = document.getElementById("introText");
+
+    // 요소가 제대로 로드되었는지 확인
+    if (!openingScreen || !startGameButton || !introText) {
+        console.error("❌ 필수 요소가 없습니다. HTML 파일을 확인하세요!");
+        return;
+    }
 
     // 프롤로그 텍스트 (한 줄씩 등장)
     const prologueTexts = [
@@ -81,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentIndex++;
             setTimeout(() => {
                 introText.style.opacity = "0";
-                setTimeout(showNextText, 2000); // 다음 문장 등장
+                setTimeout(showNextText, 2000);
             }, 2000);
         } else {
             // 모든 텍스트가 끝나면 게임 시작 버튼 표시
@@ -93,12 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // 일정 시간 후 프롤로그 시작
     setTimeout(showNextText, 6000);
 
-    // 배경음 재생 설정 (클릭 또는 키 입력 감지)
+    // 배경음 재생 설정
     function startGame() {
         bgm.muted = false;
         bgm.play().catch(error => console.log("🔇 자동 재생 실패:", error));
 
-        // 오프닝 화면 사라지기
+        // 오프닝 화면 서서히 사라지기
         openingScreen.style.opacity = "0";
         setTimeout(() => {
             openingScreen.style.display = "none";
