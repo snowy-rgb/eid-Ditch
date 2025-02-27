@@ -108,11 +108,24 @@ button:hover {
 }
 
 /* 프롤로그 텍스트 */
+/* 인트로 텍스트 박스 스타일 */
 #introText {
     font-size: 16px;
     opacity: 0;
     animation: fadeIn 3s ease-in-out 5s forwards; /* 5초 후 등장 */
+    background: rgba(0, 0, 0, 0.7); /* 반투명한 검은 배경 */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px; /* 모서리 둥글게 */
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; /* 전체 화면 대비 적절한 크기 */
+    max-width: 600px; /* 너무 넓어지지 않도록 제한 */
 }
+
 
 /* 페이드인 효과 */
 @keyframes fadeIn {
