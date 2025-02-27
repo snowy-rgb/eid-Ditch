@@ -60,9 +60,30 @@ window.addEventListener("resize", () => {
 
 //음악
 document.addEventListener("DOMContentLoaded", () => {
+    let startScreen = document.getElementById("startScreen");
     let bgm = document.getElementById("bgm");
 
-    // 🔥 자동으로 음소거 해제 후 재생
-    bgm.muted = false;
-    bgm.play().catch(error => console.log("🔇 자동 재생 실패:", error));
+    function startGame() {
+        // 🔥 BGM 재생
+        bgm.play().then(() => {
+            console.log("🎵 배경음 재생 성공!");
+        }).catch(error => {
+            console.log("🔇 자동 재생 실패:", error);
+        });
+
+        // 🔥 시작 화면 서서히 사라지기
+        startScreen.style.opacity = "0";
+        setTimeout(() => {
+            startScreen.style.display = "none";
+        }, 1000); // 1초 후 완전히 제거
+
+        // 더 이상 이벤트가 실행되지 않도록 리스너 제거
+        document.removeEventListener("click", startGame);
+        document.removeEventListener("keydown", startGame);
+    }
+
+    // 🔥 사용자 입력 감지 (클릭, 키 입력 시 실행)
+    document.addEventListener("click", startGame);
+    document.addEventListener("keydown", startGame);
 });
+
