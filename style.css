@@ -57,7 +57,7 @@ canvas {
 
 button {
     font-size: 14px;
-    font-family: 'OneStoreMobileGothicPop', Arial, sans-serif;
+    font-family: 'OneStoreMobileGothicPop';
     padding: 10px 20px;
     margin: 10px;
     background: transparent; /* 투명 버튼 */
