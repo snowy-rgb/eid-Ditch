@@ -90,11 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 setTimeout(showNextText, 2000);
             }, 2000);
         } else {
-            // 모든 텍스트가 끝나면 게임 시작 버튼 표시
-            startGameButton.style.display = "block";
-            startGameButton.style.opacity = "1";
+            // 모든 텍스트가 끝나면 서서히 사라지게 만들기
+            setTimeout(() => {
+                introText.style.display = "none";
+            }, 2000);
         }
     }
+
 
     // 일정 시간 후 프롤로그 시작
     setTimeout(showNextText, 6000);
