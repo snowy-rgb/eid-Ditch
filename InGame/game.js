@@ -1,13 +1,17 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// 고정된 비율 설정 (16:9)
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 450;
+
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
 
 // 플레이어 정보
 const player = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
+    x: GAME_WIDTH / 2,
+    y: GAME_HEIGHT / 2,
     size: 20,
     speed: 5
 };
@@ -25,9 +29,27 @@ class Room {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = canvas.width;
-        this.height = canvas.height;
+        this.width = GAME_WIDTH;
+        this.height = GAME_HEIGHT;
         this.exits = {}; // 방의 출입구 (위, 아래, 왼쪽, 오른쪽)
+        this.objects = this.generateObjects();
+    }
+
+    // 랜덤 오브젝트 생성
+    generateObjects() {
+        let objects = [];
+        const numObjects = Math.floor(Math.random() * 4) + 1; // 1~4개 생성
+
+        for (let i = 0; i < numObjects; i++) {
+            objects.push({
+                x: Math.random() * (this.width - 30),
+                y: Math.random() * (this.height - 30),
+                size: 15,
+                type: Math.random() > 0.8 ? "이드" : "장애물"
+            });
+        }
+
+        return objects;
     }
 }
 
@@ -58,19 +80,19 @@ function movePlayer() {
     if (keys.a) player.x -= player.speed;
     if (keys.d) player.x += player.speed;
 
-    // 화면 밖으로 나갔을 때 방 이동 처리
+    // 방 이동 체크 (화면 경계 넘어가면 이동)
     if (player.x < 0) {
-        player.x = canvas.width - player.size;
+        player.x = GAME_WIDTH - player.size;
         moveToRoom(currentRoom.x - 1, currentRoom.y);
-    } else if (player.x + player.size > canvas.width) {
+    } else if (player.x + player.size > GAME_WIDTH) {
         player.x = 0;
         moveToRoom(currentRoom.x + 1, currentRoom.y);
     }
 
     if (player.y < 0) {
-        player.y = canvas.height - player.size;
+        player.y = GAME_HEIGHT - player.size;
         moveToRoom(currentRoom.x, currentRoom.y - 1);
-    } else if (player.y + player.size > canvas.height) {
+    } else if (player.y + player.size > GAME_HEIGHT) {
         player.y = 0;
         moveToRoom(currentRoom.x, currentRoom.y + 1);
     }
@@ -91,6 +113,16 @@ function moveToRoom(x, y) {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // 방 배경
+    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // 랜덤 오브젝트 그리기
+    currentRoom.objects.forEach(obj => {
+        ctx.fillStyle = obj.type === "이드" ? "red" : "gray";
+        ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
+    });
+
     // 플레이어 이동
     movePlayer();
 
@@ -98,12 +130,14 @@ function gameLoop() {
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.size, player.size);
 
-    // 방 표시
-    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     requestAnimationFrame(gameLoop);
 }
+
+// 화면 크기 변경 시 비율 유지
+window.addEventListener("resize", () => {
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+});
 
 // 게임 시작
 gameLoop();
