@@ -57,3 +57,11 @@ window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
+
+window.addEventListener("click", function() {
+    let bgm = document.getElementById("bgm");
+    if (bgm.paused) {
+        bgm.play().catch(error => console.log("🔇 오디오 자동 재생이 차단됨:", error));
+    }
+});
+
