@@ -1,8 +1,10 @@
-
 @font-face {
     font-family: 'OneStoreMobileGothicPop';
-    src: url('Assets/Fonts/OneStoreMobileGothicPop.ttf') format('truetype');
+    src: url('https://snowy-rgb.github.io/eid-Ditch/Assets/Fonts/OneStoreMobileGothicPop.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }
+
 
 body {
     margin: 0;
@@ -20,7 +22,6 @@ body {
 
 #game-container {
     position: relative;
-    font-family: 'OneStoreMobileGothicPop', Arial, sans-serif;
     width: 100%;
     height: 100%;
     display: flex;
