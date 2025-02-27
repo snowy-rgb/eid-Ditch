@@ -92,10 +92,10 @@ class Room {
 }
 
 //방 랜덤
-function moveToRoom(x, y) {
+function moveToRoom(x, y, entryDirection) {
     const roomKey = `${x},${y}`;
     
-    console.log(`🗺 방 이동: (${x}, ${y})`); // 🔥 디버깅 로그 추가
+    console.log(`🗺 방 이동: (${x}, ${y}) 방향: ${entryDirection}`);
 
     // 새로운 방을 불러오거나 생성
     if (!visitedRooms[roomKey]) {
@@ -112,10 +112,24 @@ function moveToRoom(x, y) {
     // 현재 방을 이동한 방으로 변경
     currentRoom = visitedRooms[roomKey];
 
-    // 플레이어를 방 중앙으로 이동
-    player.x = GAME_WIDTH / 2;
-    player.y = GAME_HEIGHT / 2;
+    // 🚪 이동 후 플레이어가 반대편 출입구로 나오도록 설정
+    if (entryDirection === "up") {
+        player.x = GAME_WIDTH / 2;
+        player.y = GAME_HEIGHT - TILE_SIZE * 1.5; // 아래쪽 출입구로 이동
+    } else if (entryDirection === "down") {
+        player.x = GAME_WIDTH / 2;
+        player.y = TILE_SIZE * 1.5; // 위쪽 출입구로 이동
+    } else if (entryDirection === "left") {
+        player.x = GAME_WIDTH - TILE_SIZE * 1.5;
+        player.y = GAME_HEIGHT / 2; // 오른쪽 출입구로 이동
+    } else if (entryDirection === "right") {
+        player.x = TILE_SIZE * 1.5;
+        player.y = GAME_HEIGHT / 2; // 왼쪽 출입구로 이동
+    }
+
+    console.log(`✅ 플레이어 위치: (${player.x}, ${player.y})`);
 }
+
 
 
 // 현재 방 설정
@@ -149,35 +163,15 @@ function movePlayer() {
 
     // 🚧 벽(1) & 장애물(3)은 이동 불가
     if (tile === 1 || tile === 3) return;
-
-    if (tile === 2) {
-    console.log("🚪 출입구를 밟음! 방 이동 시작!");
     
-        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1); // 위쪽 출입구
-        else if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1); // 아래쪽 출입구
-        else if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y); // 왼쪽 출입구
-        else if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y); // 오른쪽 출입구
+    if (tile === 2) {
+        console.log("🚪 출입구를 밟음! 방 이동 시작!");
+        
+        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1, "up"); // 위쪽 출입구
+        else if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1, "down"); // 아래쪽 출입구
+        else if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y, "left"); // 왼쪽 출입구
+        else if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y, "right"); // 오른쪽 출입구
     }
-
-
-    // 🔥 함정(6) - 이동 속도 감소
-    if (tile === 6) {
-        console.log("⚠️ 함정을 밟음! 속도 감소!");
-        player.speed = 1.5; // 속도 감소
-        setTimeout(() => { player.speed = 2.5; }, 2000); // 2초 후 복구
-    }
-
-    // 🎁 아이템(4) - 획득 후 제거
-    if (tile === 4) {
-        console.log("🎁 아이템 획득!");
-        currentRoom.grid[tileY][tileX] = 0; // 아이템 삭제
-    }
-
-    // 👿 이드(5) - 게임 오버
-    if (tile === 5) {
-        console.log("💀 이드에게 당했다! 게임 오버!");
-    }
-
 
     player.x = nextX;
     player.y = nextY;
