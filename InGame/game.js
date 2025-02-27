@@ -116,20 +116,41 @@ function movePlayer() {
 
     let tileX = Math.floor(nextX / TILE_SIZE);
     let tileY = Math.floor(nextY / TILE_SIZE);
+    let tile = currentRoom.grid[tileY][tileX];
 
-    // 벽 & 장애물 충돌 방지
-    if (currentRoom.grid[tileY][tileX] !== 1 && currentRoom.grid[tileY][tileX] !== 3) {
-        player.x = nextX;
-        player.y = nextY;
+    // 🚧 벽(1) & 장애물(3)은 이동 불가
+    if (tile === 1 || tile === 3) return;
+
+    // 🔥 함정(6) - 이동 속도 감소
+    if (tile === 6) {
+        player.speed = 1.5; // 이동 속도 느려짐
+        setTimeout(() => { player.speed = 2.5; }, 2000); // 2초 후 복구
     }
 
-    // 출입구 이동
-    if (currentRoom.grid[tileY][tileX] === 2) {
-        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1);
-        if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1);
-        if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y);
-        if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y);
+    // 🎁 아이템(4) - 획득 후 제거
+    if (tile === 4) {
+        console.log("아이템 획득!");
+        currentRoom.grid[tileY][tileX] = 0;
     }
+
+    // 👿 이드(5) - 게임 오버
+    if (tile === 5) {
+        console.log("이드에게 당했다! 게임 오버!");
+    }
+
+    // 🔑 특별한 문(7) - 열쇠가 있어야 통과 가능
+    if (tile === 7) {
+        if (player.hasKey) {
+            console.log("문이 열렸습니다!");
+            currentRoom.grid[tileY][tileX] = 0; // 문 제거
+        } else {
+            console.log("열쇠가 필요합니다!");
+            return;
+        }
+    }
+
+    player.x = nextX;
+    player.y = nextY;
 }
 
 // 방 이동 함수
@@ -151,12 +172,20 @@ function drawRoom() {
         for (let j = 0; j < currentRoom.width; j++) {
             let tile = currentRoom.grid[i][j];
 
-            console.log(tile); // 🔥 타일 값 출력해서 확인 (디버깅)
-
             if (tile === 1) {
                 ctx.fillStyle = "gray"; // 벽
             } else if (tile === 2) {
                 ctx.fillStyle = "yellow"; // 출입구
+            } else if (tile === 3) {
+                ctx.fillStyle = "red"; // 장애물
+            } else if (tile === 4) {
+                ctx.fillStyle = "blue"; // 아이템
+            } else if (tile === 5) {
+                ctx.fillStyle = "purple"; // 이드 (적)
+            } else if (tile === 6) {
+                ctx.fillStyle = "orange"; // 함정
+            } else if (tile === 7) {
+                ctx.fillStyle = "green"; // 특별한 문 (열쇠 필요)
             } else {
                 ctx.fillStyle = "black"; // 바닥
             }
@@ -165,6 +194,7 @@ function drawRoom() {
         }
     }
 }
+
 
 
 // 게임 루프
