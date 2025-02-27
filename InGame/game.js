@@ -102,7 +102,7 @@ function moveToRoom(x, y, entryDirection) {
             console.log("🎲 새로운 랜덤 방 생성!");
             visitedRooms[roomKey] = new Room(x, y);
         }
-    }
+    
 
     // 현재 방을 이동한 방으로 변경
     currentRoom = visitedRooms[roomKey];
