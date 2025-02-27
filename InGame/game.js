@@ -99,7 +99,6 @@ function moveToRoom(x, y, entryDirection) {
 
     // 새로운 방을 불러오거나 생성
     if (!visitedRooms[roomKey]) {
-        if (roomsData[roomKey]) {
             console.log("🗂 미리 만들어진 방 로드!");
             visitedRooms[roomKey] = new Room(x, y);
             visitedRooms[roomKey].grid = roomsData[roomKey].grid; // 저장된 방 데이터 사용
