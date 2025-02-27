@@ -200,14 +200,6 @@ function drawRoom() {
                 ctx.fillStyle = "gray"; // 벽
             } else if (tile === 2) {
                 ctx.fillStyle = "yellow"; // 출입구
-            } else if (tile === 3) {
-                ctx.fillStyle = "red"; // 장애물
-            } else if (tile === 4) {
-                ctx.fillStyle = "blue"; // 아이템
-            } else if (tile === 5) {
-                ctx.fillStyle = "purple"; // 이드 (적)
-            } else if (tile === 6) {
-                ctx.fillStyle = "orange"; // 함정
             } else {
                 ctx.fillStyle = "black"; // 바닥
             }
