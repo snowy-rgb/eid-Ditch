@@ -91,6 +91,33 @@ class Room {
     }
 }
 
+//방 랜덤
+function moveToRoom(x, y) {
+    const roomKey = `${x},${y}`;
+    
+    console.log(`🗺 방 이동: (${x}, ${y})`); // 🔥 디버깅 로그 추가
+
+    // 새로운 방을 불러오거나 생성
+    if (!visitedRooms[roomKey]) {
+        if (roomsData[roomKey]) {
+            console.log("🗂 미리 만들어진 방 로드!");
+            visitedRooms[roomKey] = new Room(x, y);
+            visitedRooms[roomKey].grid = roomsData[roomKey].grid; // 저장된 방 데이터 사용
+        } else {
+            console.log("🎲 새로운 랜덤 방 생성!");
+            visitedRooms[roomKey] = new Room(x, y);
+        }
+    }
+
+    // 현재 방을 이동한 방으로 변경
+    currentRoom = visitedRooms[roomKey];
+
+    // 플레이어를 방 중앙으로 이동
+    player.x = GAME_WIDTH / 2;
+    player.y = GAME_HEIGHT / 2;
+}
+
+
 // 현재 방 설정
 let currentRoom = new Room(0, 0);
 const visitedRooms = { "0,0": currentRoom };
@@ -118,36 +145,39 @@ function movePlayer() {
     let tileY = Math.floor(nextY / TILE_SIZE);
     let tile = currentRoom.grid[tileY][tileX];
 
+    console.log(`플레이어 위치: (${tileX}, ${tileY}), 현재 타일: ${tile}`); // 🔥 디버깅
+
     // 🚧 벽(1) & 장애물(3)은 이동 불가
     if (tile === 1 || tile === 3) return;
 
+    if (tile === 2) {
+    console.log("🚪 출입구를 밟음! 방 이동 시작!");
+    
+        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1); // 위쪽 출입구
+        else if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1); // 아래쪽 출입구
+        else if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y); // 왼쪽 출입구
+        else if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y); // 오른쪽 출입구
+    }
+
+
     // 🔥 함정(6) - 이동 속도 감소
     if (tile === 6) {
-        player.speed = 1.5; // 이동 속도 느려짐
+        console.log("⚠️ 함정을 밟음! 속도 감소!");
+        player.speed = 1.5; // 속도 감소
         setTimeout(() => { player.speed = 2.5; }, 2000); // 2초 후 복구
     }
 
     // 🎁 아이템(4) - 획득 후 제거
     if (tile === 4) {
-        console.log("아이템 획득!");
-        currentRoom.grid[tileY][tileX] = 0;
+        console.log("🎁 아이템 획득!");
+        currentRoom.grid[tileY][tileX] = 0; // 아이템 삭제
     }
 
     // 👿 이드(5) - 게임 오버
     if (tile === 5) {
-        console.log("이드에게 당했다! 게임 오버!");
+        console.log("💀 이드에게 당했다! 게임 오버!");
     }
 
-    // 🔑 특별한 문(7) - 열쇠가 있어야 통과 가능
-    if (tile === 7) {
-        if (player.hasKey) {
-            console.log("문이 열렸습니다!");
-            currentRoom.grid[tileY][tileX] = 0; // 문 제거
-        } else {
-            console.log("열쇠가 필요합니다!");
-            return;
-        }
-    }
 
     player.x = nextX;
     player.y = nextY;
@@ -184,8 +214,6 @@ function drawRoom() {
                 ctx.fillStyle = "purple"; // 이드 (적)
             } else if (tile === 6) {
                 ctx.fillStyle = "orange"; // 함정
-            } else if (tile === 7) {
-                ctx.fillStyle = "green"; // 특별한 문 (열쇠 필요)
             } else {
                 ctx.fillStyle = "black"; // 바닥
             }
@@ -194,6 +222,7 @@ function drawRoom() {
         }
     }
 }
+
 
 
 
