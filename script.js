@@ -58,13 +58,14 @@ window.addEventListener("resize", () => {
     canvas.height = window.innerHeight;
 });
 
-//음악
+//음악및 시작 인터페이스
 document.addEventListener("DOMContentLoaded", () => {
     let startScreen = document.getElementById("startScreen");
     let bgm = document.getElementById("bgm");
 
     function startGame() {
-        // 🔥 배경음 재생 (모바일에서도 실행 가능하도록 수정)
+        // 🔥 배경음 재생 (음소거 해제 추가)
+        bgm.muted = false; // 🔥 음소거 해제
         bgm.play().then(() => {
             console.log("🎵 배경음 재생 성공!");
         }).catch(error => {
@@ -84,8 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 🔥 사용자 입력 감지 (클릭, 터치, 키 입력)
-    document.addEventListener("click", startGame);
-    document.addEventListener("keydown", startGame);
-    document.addEventListener("touchstart", startGame); // 모바일 터치 지원!
+    document.addEventListener("click", startGame, { once: true });
+    document.addEventListener("keydown", startGame, { once: true });
+    document.addEventListener("touchstart", startGame, { once: true }); // 모바일 터치 지원!
 });
+
 
