@@ -60,34 +60,63 @@ window.addEventListener("resize", () => {
 
 //음악및 시작 인터페이스
 document.addEventListener("DOMContentLoaded", () => {
-    let startScreen = document.getElementById("startScreen");
+    let openingScreen = document.getElementById("openingScreen");
+    let startGameButton = document.getElementById("startGame");
     let bgm = document.getElementById("bgm");
+    let introText = document.getElementById("introText");
 
+    // 프롤로그 텍스트 (한 줄씩 등장)
+    const prologueTexts = [
+        "깨어날 수 없는 꿈...",
+        "당신은 어디에 있는가?",
+        "이 곳은 현실인가, 허상인가?"
+    ];
+
+    let currentIndex = 0;
+
+    function showNextText() {
+        if (currentIndex < prologueTexts.length) {
+            introText.innerText = prologueTexts[currentIndex];
+            introText.style.opacity = "1";
+            currentIndex++;
+            setTimeout(() => {
+                introText.style.opacity = "0";
+                setTimeout(showNextText, 2000); // 다음 문장 등장
+            }, 2000);
+        } else {
+            // 모든 텍스트가 끝나면 게임 시작 버튼 표시
+            startGameButton.style.display = "block";
+            startGameButton.style.opacity = "1";
+        }
+    }
+
+    // 일정 시간 후 프롤로그 시작
+    setTimeout(showNextText, 6000);
+
+    // 배경음 재생 설정 (클릭 또는 키 입력 감지)
     function startGame() {
-        // 🔥 배경음 재생 (음소거 해제 추가)
-        bgm.muted = false; // 🔥 음소거 해제
-        bgm.play().then(() => {
-            console.log("🎵 배경음 재생 성공!");
-        }).catch(error => {
-            console.log("🔇 자동 재생 실패:", error);
-        });
+        bgm.muted = false;
+        bgm.play().catch(error => console.log("🔇 자동 재생 실패:", error));
 
-        // 🔥 시작 화면 서서히 사라지기
-        startScreen.style.opacity = "0";
+        // 오프닝 화면 사라지기
+        openingScreen.style.opacity = "0";
         setTimeout(() => {
-            startScreen.style.display = "none";
-        }, 1000); // 1초 후 완전히 제거
+            openingScreen.style.display = "none";
+        }, 2000);
 
-        // 이벤트 리스너 제거 (중복 실행 방지)
         document.removeEventListener("click", startGame);
         document.removeEventListener("keydown", startGame);
         document.removeEventListener("touchstart", startGame);
     }
 
-    // 🔥 사용자 입력 감지 (클릭, 터치, 키 입력)
+    // 게임 시작 버튼 클릭 시 진행
+    startGameButton.addEventListener("click", startGame);
+
+    // 터치, 클릭, 키 입력 감지
     document.addEventListener("click", startGame, { once: true });
     document.addEventListener("keydown", startGame, { once: true });
-    document.addEventListener("touchstart", startGame, { once: true }); // 모바일 터치 지원!
+    document.addEventListener("touchstart", startGame, { once: true });
 });
+
 
 
