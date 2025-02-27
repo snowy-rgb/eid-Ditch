@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이드 : 디치 결함</title>
+    <title>이드 : dream defect</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <canvas id="background-canvas"></canvas> <!-- 애니메이션 효과용 -->
-        <h1 class="game-title">이드 : 디치 결함</h1>
-        <p class="game-subtitle">어둠 속에서 ‘이드’를 찾아라...</p>
+        <h1 class="game-title">eid : The Dream Defect</h1>
+        <p class="game-subtitle"></p>
         <button id="start-btn" onclick='GoToGame()'>시작하기</button>
         <button id="settings-btn">설정</button>
     </div>
@@ -32,12 +32,12 @@
         
             if (bgm.paused) {
                 bgm.play().then(() => {
-                    console.log("🎵 배경음 재생 성공!");
+                    console.log(" 배경음 재생 성공!");
                 }).catch(error => {
-                    console.log("🔇 자동 재생 실패:", error);
+                    console.log(" 자동 재생 실패:", error);
                 });
             }
-        }, { once: true }); // 🔥 한 번만 실행되도록 설정!
+        }, { once: true }); // 한 번만 실행되도록 설정 
     </script>
 </body>
 </html>
