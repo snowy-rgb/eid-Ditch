@@ -31,6 +31,17 @@
             window.location.href = 'InGame/ditch.html'
         }
 
+        document.addEventListener("click", function() {
+            let bgm = document.getElementById("bgm");
+        
+            if (bgm.paused) {
+                bgm.play().then(() => {
+                    console.log(" 배경음 재생 성공!");
+                }).catch(error => {
+                    console.log(" 자동 재생 실패:", error);
+                });
+            }
+        }, { once: true }); // 한 번만 실행되도록 설정 
     </script>
 </body>
 </html>
