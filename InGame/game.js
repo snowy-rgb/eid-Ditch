@@ -8,12 +8,12 @@ const GAME_HEIGHT = 450;
 canvas.width = GAME_WIDTH;
 canvas.height = GAME_HEIGHT;
 
-// 플레이어 정보
+// 플레이어 정보 (속도를 느리게 조정)
 const player = {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT / 2,
     size: 20,
-    speed: 5
+    speed: 3 // 기존 5 → 3으로 느리게 조정
 };
 
 // 키 입력 저장
@@ -31,7 +31,6 @@ class Room {
         this.y = y;
         this.width = GAME_WIDTH;
         this.height = GAME_HEIGHT;
-        this.exits = {}; // 방의 출입구 (위, 아래, 왼쪽, 오른쪽)
         this.objects = this.generateObjects();
     }
 
@@ -72,9 +71,6 @@ window.addEventListener("keyup", (e) => {
 
 // 플레이어 이동 로직 & 방 이동 체크
 function movePlayer() {
-    let prevX = player.x;
-    let prevY = player.y;
-
     if (keys.w) player.y -= player.speed;
     if (keys.s) player.y += player.speed;
     if (keys.a) player.x -= player.speed;
@@ -109,12 +105,26 @@ function moveToRoom(x, y) {
     currentRoom = visitedRooms[roomKey];
 }
 
+// 조명 효과
+function drawLighting() {
+    const gradient = ctx.createRadialGradient(
+        player.x + player.size / 2, player.y + player.size / 2, 20,
+        player.x + player.size / 2, player.y + player.size / 2, 150
+    );
+
+    gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+}
+
 // 게임 루프
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 방 배경
-    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+    // 방 배경 (어두운 느낌)
+    ctx.fillStyle = "rgba(20, 20, 20, 1)";
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     // 랜덤 오브젝트 그리기
@@ -129,6 +139,9 @@ function gameLoop() {
     // 플레이어 그리기
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.size, player.size);
+
+    // 조명 효과 적용
+    drawLighting();
 
     requestAnimationFrame(gameLoop);
 }
