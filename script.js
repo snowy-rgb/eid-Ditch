@@ -58,10 +58,11 @@ window.addEventListener("resize", () => {
     canvas.height = window.innerHeight;
 });
 
-window.addEventListener("click", function() {
+//음악
+document.addEventListener("DOMContentLoaded", () => {
     let bgm = document.getElementById("bgm");
-    if (bgm.paused) {
-        bgm.play().catch(error => console.log("🔇 오디오 자동 재생이 차단됨:", error));
-    }
-});
 
+    // 🔥 자동으로 음소거 해제 후 재생
+    bgm.muted = false;
+    bgm.play().catch(error => console.log("🔇 자동 재생 실패:", error));
+});
