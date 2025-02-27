@@ -2,53 +2,65 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // 고정된 비율 설정 (16:9)
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 450;
+const TILE_SIZE = 40;
+const ROOM_WIDTH = 20;
+const ROOM_HEIGHT = 12;
+const GAME_WIDTH = TILE_SIZE * ROOM_WIDTH;
+const GAME_HEIGHT = TILE_SIZE * ROOM_HEIGHT;
 
 canvas.width = GAME_WIDTH;
 canvas.height = GAME_HEIGHT;
 
-// 플레이어 정보 (속도를 느리게 조정)
+// 플레이어 정보 (속도 조정)
 const player = {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT / 2,
-    size: 20,
-    speed: 3 // 기존 5 → 3으로 느리게 조정
+    size: TILE_SIZE * 0.6,
+    speed: 2.5 // 기존 3 → 2.5로 더 부드럽게 조정
 };
 
 // 키 입력 저장
-const keys = {
-    w: false,
-    a: false,
-    s: false,
-    d: false
-};
+const keys = { w: false, a: false, s: false, d: false };
 
 // 방 데이터 구조
 class Room {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = GAME_WIDTH;
-        this.height = GAME_HEIGHT;
-        this.objects = this.generateObjects();
+        this.width = ROOM_WIDTH;
+        this.height = ROOM_HEIGHT;
+        this.grid = this.generateRoom();
     }
 
-    // 랜덤 오브젝트 생성
-    generateObjects() {
-        let objects = [];
-        const numObjects = Math.floor(Math.random() * 4) + 1; // 1~4개 생성
+    // 랜덤 방 생성 (벽, 바닥, 출입구 포함)
+    generateRoom() {
+        let grid = [];
 
-        for (let i = 0; i < numObjects; i++) {
-            objects.push({
-                x: Math.random() * (this.width - 30),
-                y: Math.random() * (this.height - 30),
-                size: 15,
-                type: Math.random() > 0.8 ? "이드" : "장애물"
-            });
+        for (let i = 0; i < this.height; i++) {
+            let row = [];
+            for (let j = 0; j < this.width; j++) {
+                if (i === 0 || i === this.height - 1 || j === 0 || j === this.width - 1) {
+                    row.push(1); // 벽(1)
+                } else {
+                    row.push(Math.random() < 0.1 ? 1 : 0); // 바닥(0) + 랜덤 벽 생성
+                }
+            }
+            grid.push(row);
         }
 
-        return objects;
+        // 출입구 추가 (랜덤한 위치)
+        let exits = [
+            { x: Math.floor(this.width / 2), y: 0 }, // 위쪽
+            { x: Math.floor(this.width / 2), y: this.height - 1 }, // 아래쪽
+            { x: 0, y: Math.floor(this.height / 2) }, // 왼쪽
+            { x: this.width - 1, y: Math.floor(this.height / 2) } // 오른쪽
+        ];
+
+        exits.forEach(exit => {
+            if (Math.random() < 0.7) grid[exit.y][exit.x] = 2; // 출입구(2)
+        });
+
+        return grid;
     }
 }
 
@@ -58,39 +70,39 @@ const visitedRooms = { "0,0": currentRoom };
 
 // 키 입력 감지
 window.addEventListener("keydown", (e) => {
-    if (keys.hasOwnProperty(e.key)) {
-        keys[e.key] = true;
-    }
+    if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
 });
 
 window.addEventListener("keyup", (e) => {
-    if (keys.hasOwnProperty(e.key)) {
-        keys[e.key] = false;
-    }
+    if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
 });
 
-// 플레이어 이동 로직 & 방 이동 체크
+// 플레이어 이동 & 충돌 체크
 function movePlayer() {
-    if (keys.w) player.y -= player.speed;
-    if (keys.s) player.y += player.speed;
-    if (keys.a) player.x -= player.speed;
-    if (keys.d) player.x += player.speed;
+    let nextX = player.x;
+    let nextY = player.y;
 
-    // 방 이동 체크 (화면 경계 넘어가면 이동)
-    if (player.x < 0) {
-        player.x = GAME_WIDTH - player.size;
-        moveToRoom(currentRoom.x - 1, currentRoom.y);
-    } else if (player.x + player.size > GAME_WIDTH) {
-        player.x = 0;
-        moveToRoom(currentRoom.x + 1, currentRoom.y);
+    if (keys.w) nextY -= player.speed;
+    if (keys.s) nextY += player.speed;
+    if (keys.a) nextX -= player.speed;
+    if (keys.d) nextX += player.speed;
+
+    // 타일 좌표 변환
+    let tileX = Math.floor(nextX / TILE_SIZE);
+    let tileY = Math.floor(nextY / TILE_SIZE);
+
+    // 벽 충돌 검사
+    if (currentRoom.grid[tileY][tileX] !== 1) {
+        player.x = nextX;
+        player.y = nextY;
     }
 
-    if (player.y < 0) {
-        player.y = GAME_HEIGHT - player.size;
-        moveToRoom(currentRoom.x, currentRoom.y - 1);
-    } else if (player.y + player.size > GAME_HEIGHT) {
-        player.y = 0;
-        moveToRoom(currentRoom.x, currentRoom.y + 1);
+    // 출입구를 통해 새로운 방으로 이동
+    if (currentRoom.grid[tileY][tileX] === 2) {
+        if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1);
+        if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1);
+        if (tileX === 0) moveToRoom(currentRoom.x - 1, currentRoom.y);
+        if (tileX === ROOM_WIDTH - 1) moveToRoom(currentRoom.x + 1, currentRoom.y);
     }
 }
 
@@ -103,13 +115,36 @@ function moveToRoom(x, y) {
     }
 
     currentRoom = visitedRooms[roomKey];
+
+    // 플레이어를 새로운 방의 출입구 근처로 이동
+    player.x = GAME_WIDTH / 2;
+    player.y = GAME_HEIGHT / 2;
+}
+
+// 방을 그리는 함수
+function drawRoom() {
+    for (let i = 0; i < currentRoom.height; i++) {
+        for (let j = 0; j < currentRoom.width; j++) {
+            let tile = currentRoom.grid[i][j];
+
+            if (tile === 1) {
+                ctx.fillStyle = "darkgray"; // 벽
+            } else if (tile === 2) {
+                ctx.fillStyle = "yellow"; // 출입구
+            } else {
+                ctx.fillStyle = "black"; // 바닥
+            }
+
+            ctx.fillRect(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+    }
 }
 
 // 조명 효과
 function drawLighting() {
     const gradient = ctx.createRadialGradient(
-        player.x + player.size / 2, player.y + player.size / 2, 20,
-        player.x + player.size / 2, player.y + player.size / 2, 150
+        player.x + player.size / 2, player.y + player.size / 2, 50,
+        player.x + player.size / 2, player.y + player.size / 2, 200
     );
 
     gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
@@ -123,15 +158,8 @@ function drawLighting() {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 방 배경 (어두운 느낌)
-    ctx.fillStyle = "rgba(20, 20, 20, 1)";
-    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // 랜덤 오브젝트 그리기
-    currentRoom.objects.forEach(obj => {
-        ctx.fillStyle = obj.type === "이드" ? "red" : "gray";
-        ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
-    });
+    // 방 그리기
+    drawRoom();
 
     // 플레이어 이동
     movePlayer();
@@ -140,7 +168,7 @@ function gameLoop() {
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.size, player.size);
 
-    // 조명 효과 적용
+    // 조명 효과
     drawLighting();
 
     requestAnimationFrame(gameLoop);
