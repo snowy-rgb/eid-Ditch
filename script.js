@@ -61,9 +61,11 @@ window.addEventListener("resize", () => {
 //음악및 시작 인터페이스
 document.addEventListener("DOMContentLoaded", () => {
     let openingScreen = document.getElementById("openingScreen");
-    let startGameButton = document.getElementById("start-btn"); // ✅ startGame → start-btn 변경
-    let bgm = document.getElementById("bgm");
+    let creatorText = document.getElementById("creatorText");
+    let gameTitle = document.getElementById("gameTitle");
     let introText = document.getElementById("introText");
+    let startPrompt = document.getElementById("startPrompt");
+    let bgm = document.getElementById("bgm");
 
     // 요소가 제대로 로드되었는지 확인
     if (!openingScreen || !startGameButton || !introText) {
@@ -80,47 +82,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentIndex = 0;
 
-    function showNextText() {
+    function showIntroText() {
         if (currentIndex < prologueTexts.length) {
             introText.innerText = prologueTexts[currentIndex];
             introText.style.opacity = "1";
             currentIndex++;
             setTimeout(() => {
                 introText.style.opacity = "0";
-                setTimeout(showNextText, 2000);
+                setTimeout(showIntroText, 2000);
             }, 2000);
         } else {
-            // 모든 텍스트가 끝나면 서서히 사라지게 만들기
             setTimeout(() => {
-                introText.style.display = "none";
+                startPrompt.style.opacity = "1"; // "아무 키를 누르세요" 표시
             }, 2000);
         }
     }
 
+    // 순차적으로 텍스트 등장
+    setTimeout(() => creatorText.style.opacity = "1", 1000);
+    setTimeout(() => creatorText.style.opacity = "0", 3000);
+    setTimeout(() => gameTitle.style.opacity = "1", 4000);
+    setTimeout(() => gameTitle.style.opacity = "0", 6000);
+    setTimeout(() => showIntroText(), 7000);
 
-    // 일정 시간 후 프롤로그 시작
-    setTimeout(showNextText, 6000);
-
-    // 배경음 재생 설정
     function startGame() {
         bgm.muted = false;
         bgm.play().catch(error => console.log("🔇 자동 재생 실패:", error));
 
-        // 오프닝 화면 서서히 사라지기
+        // 인트로 화면 서서히 사라지기
         openingScreen.style.opacity = "0";
         setTimeout(() => {
             openingScreen.style.display = "none";
-        }, 2000);
+        }, 1500);
 
         document.removeEventListener("click", startGame);
         document.removeEventListener("keydown", startGame);
         document.removeEventListener("touchstart", startGame);
     }
 
-    // 게임 시작 버튼 클릭 시 진행
-    startGameButton.addEventListener("click", startGame);
-
-    // 터치, 클릭, 키 입력 감지
+    // 사용자 입력 감지
     document.addEventListener("click", startGame, { once: true });
     document.addEventListener("keydown", startGame, { once: true });
     document.addEventListener("touchstart", startGame, { once: true });
