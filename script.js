@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let bgm = document.getElementById("bgm");
 
     function startGame() {
-        // 🔥 BGM 재생
+        // 🔥 배경음 재생 (모바일에서도 실행 가능하도록 수정)
         bgm.play().then(() => {
             console.log("🎵 배경음 재생 성공!");
         }).catch(error => {
@@ -77,13 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
             startScreen.style.display = "none";
         }, 1000); // 1초 후 완전히 제거
 
-        // 더 이상 이벤트가 실행되지 않도록 리스너 제거
+        // 이벤트 리스너 제거 (중복 실행 방지)
         document.removeEventListener("click", startGame);
         document.removeEventListener("keydown", startGame);
+        document.removeEventListener("touchstart", startGame);
     }
 
-    // 🔥 사용자 입력 감지 (클릭, 키 입력 시 실행)
+    // 🔥 사용자 입력 감지 (클릭, 터치, 키 입력)
     document.addEventListener("click", startGame);
     document.addEventListener("keydown", startGame);
+    document.addEventListener("touchstart", startGame); // 모바일 터치 지원!
 });
 
