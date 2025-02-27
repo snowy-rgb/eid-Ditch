@@ -90,14 +90,20 @@ button:hover {
     font-size: 20px;
     text-align: center;
     opacity: 1;
-    transition: opacity 2s ease-in-out;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 1000;
 }
 
 /* 제작자 소개 텍스트 */
-#creatorText {
-    font-size: 16px;
+#creatorText, #gameTitle, #introText, #startPrompt {
     opacity: 0;
+    position: absolute;
     animation: fadeIn 2s ease-in-out forwards;
+}
+
+/* 각 텍스트가 등장하는 위치 */
+#creatorText {
+    top: 40%;
 }
 
 /* 게임 제목 */
@@ -126,11 +132,25 @@ button:hover {
     max-width: 600px; /* 너무 넓어지지 않도록 제한 */
 }
 
+/* 마지막 안내 메시지 */
+#startPrompt {
+    bottom: 10%;
+    font-size: 14px;
+    opacity: 0;
+    animation: blink 1s infinite alternate; /* 깜빡이는 효과 */
+}
+
+
 
 /* 페이드인 효과 */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+@keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0.3; }
 }
 
 /* 시작 텍스트 스타일 */
