@@ -1,3 +1,6 @@
+const canvas = document.getElementById("gameCanvas"); // 캔버스 요소 가져오기
+const ctx = canvas.getContext("2d");
+
 const TILE_SIZE = 40;
 const ROOM_WIDTH = 20;
 const ROOM_HEIGHT = 12;
