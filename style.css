@@ -71,20 +71,7 @@ button:hover {
    background: rgba(255, 255, 255, 0.2); /* 살짝 투명 배경 */
 }
 
-/* 시작 화면 설정 */
-#startScreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    transition: opacity 1s ease-in-out;
-}
+
 
 /* 오프닝 화면 */
 #openingScreen {
