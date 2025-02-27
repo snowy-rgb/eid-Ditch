@@ -1,7 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// 고정된 비율 설정 (16:9)
+// 고정된 타일 크기 & 방 크기
 const TILE_SIZE = 40;
 const ROOM_WIDTH = 20;
 const ROOM_HEIGHT = 12;
@@ -10,13 +10,15 @@ const GAME_HEIGHT = TILE_SIZE * ROOM_HEIGHT;
 
 canvas.width = GAME_WIDTH;
 canvas.height = GAME_HEIGHT;
+canvas.style.width = '100vw';
+canvas.style.height = '100vh';
 
-// 플레이어 정보 (속도 조정)
+// 플레이어 정보
 const player = {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT / 2,
     size: TILE_SIZE * 0.6,
-    speed: 2.5 // 기존 3 → 2.5로 더 부드럽게 조정
+    speed: 2.5
 };
 
 // 키 입력 저장
@@ -24,18 +26,19 @@ const keys = { w: false, a: false, s: false, d: false };
 
 // 방 데이터 구조
 class Room {
-    constructor(x, y) {
+    constructor(x, y, previousRoom = null) {
         this.x = x;
         this.y = y;
         this.width = ROOM_WIDTH;
         this.height = ROOM_HEIGHT;
-        this.grid = this.generateRoom();
+        this.grid = this.generateRoom(previousRoom);
     }
 
     // 랜덤 방 생성 (벽, 바닥, 출입구 포함)
-    generateRoom() {
+    generateRoom(previousRoom) {
         let grid = [];
 
+        // 기본 맵 생성
         for (let i = 0; i < this.height; i++) {
             let row = [];
             for (let j = 0; j < this.width; j++) {
@@ -48,16 +51,25 @@ class Room {
             grid.push(row);
         }
 
-        // 출입구 추가 (랜덤한 위치)
-        let exits = [
-            { x: Math.floor(this.width / 2), y: 0 }, // 위쪽
-            { x: Math.floor(this.width / 2), y: this.height - 1 }, // 아래쪽
-            { x: 0, y: Math.floor(this.height / 2) }, // 왼쪽
-            { x: this.width - 1, y: Math.floor(this.height / 2) } // 오른쪽
-        ];
+        // 출입구 좌표
+        let exits = {
+            top: { x: Math.floor(this.width / 2), y: 0 },
+            bottom: { x: Math.floor(this.width / 2), y: this.height - 1 },
+            left: { x: 0, y: Math.floor(this.height / 2) },
+            right: { x: this.width - 1, y: Math.floor(this.height / 2) }
+        };
 
-        exits.forEach(exit => {
-            if (Math.random() < 0.7) grid[exit.y][exit.x] = 2; // 출입구(2)
+        // 이전 방과 연결되는 출입구 유지
+        if (previousRoom) {
+            if (previousRoom.y < this.y) grid[exits.top.y][exits.top.x] = 2; // 위쪽 출입구
+            if (previousRoom.y > this.y) grid[exits.bottom.y][exits.bottom.x] = 2; // 아래쪽 출입구
+            if (previousRoom.x < this.x) grid[exits.left.y][exits.left.x] = 2; // 왼쪽 출입구
+            if (previousRoom.x > this.x) grid[exits.right.y][exits.right.x] = 2; // 오른쪽 출입구
+        }
+
+        // 랜덤 출입구 추가 (기본적으로 연결 보장 후 추가 출입구 생성)
+        Object.values(exits).forEach(exit => {
+            if (Math.random() < 0.5) grid[exit.y][exit.x] = 2;
         });
 
         return grid;
@@ -111,7 +123,7 @@ function moveToRoom(x, y) {
     const roomKey = `${x},${y}`;
 
     if (!visitedRooms[roomKey]) {
-        visitedRooms[roomKey] = new Room(x, y);
+        visitedRooms[roomKey] = new Room(x, y, currentRoom);
     }
 
     currentRoom = visitedRooms[roomKey];
@@ -140,20 +152,6 @@ function drawRoom() {
     }
 }
 
-// 조명 효과
-function drawLighting() {
-    const gradient = ctx.createRadialGradient(
-        player.x + player.size / 2, player.y + player.size / 2, 50,
-        player.x + player.size / 2, player.y + player.size / 2, 200
-    );
-
-    gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-}
-
 // 게임 루프
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -167,9 +165,6 @@ function gameLoop() {
     // 플레이어 그리기
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.size, player.size);
-
-    // 조명 효과
-    drawLighting();
 
     requestAnimationFrame(gameLoop);
 }
