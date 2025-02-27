@@ -1,7 +1,3 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-// 고정된 타일 크기 & 방 크기
 const TILE_SIZE = 40;
 const ROOM_WIDTH = 20;
 const ROOM_HEIGHT = 12;
@@ -13,7 +9,6 @@ canvas.height = GAME_HEIGHT;
 canvas.style.width = '100vw';
 canvas.style.height = '100vh';
 
-// 플레이어 정보
 const player = {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT / 2,
@@ -21,10 +16,9 @@ const player = {
     speed: 2.5
 };
 
-// 키 입력 저장
 const keys = { w: false, a: false, s: false, d: false };
 
-// 방 데이터 구조
+// 🛠 **방 클래스 (출구 문제 해결 & 장애물 위치 수정)**
 class Room {
     constructor(x, y, previousRoom = null) {
         this.x = x;
@@ -32,23 +26,22 @@ class Room {
         this.width = ROOM_WIDTH;
         this.height = ROOM_HEIGHT;
         this.grid = this.generateRoom(previousRoom);
+        this.objects = this.generateObjects(); // 장애물도 타일 단위로 생성
     }
 
-    // 랜덤 방 생성 (벽, 바닥, 출입구 포함)
+    // 🎯 **출구가 보장되는 랜덤 방 생성**
     generateRoom(previousRoom) {
-        let grid = [];
+        let grid = Array.from({ length: this.height }, () =>
+            Array(this.width).fill(0)
+        );
 
-        // 기본 맵 생성
+        // 벽 생성 (경계선)
         for (let i = 0; i < this.height; i++) {
-            let row = [];
             for (let j = 0; j < this.width; j++) {
                 if (i === 0 || i === this.height - 1 || j === 0 || j === this.width - 1) {
-                    row.push(1); // 벽(1)
-                } else {
-                    row.push(Math.random() < 0.1 ? 1 : 0); // 바닥(0) + 랜덤 벽 생성
+                    grid[i][j] = 1; // 벽
                 }
             }
-            grid.push(row);
         }
 
         // 출입구 좌표
@@ -59,20 +52,39 @@ class Room {
             right: { x: this.width - 1, y: Math.floor(this.height / 2) }
         };
 
-        // 이전 방과 연결되는 출입구 유지
+        // 🔥 **최소 하나의 출구 보장**
+        let exitKeys = Object.keys(exits);
+        let forcedExit = exitKeys[Math.floor(Math.random() * exitKeys.length)];
+        grid[exits[forcedExit].y][exits[forcedExit].x] = 2; // 출구 강제 추가
+
+        // 🔄 **이전 방과 연결된 출구 유지**
         if (previousRoom) {
-            if (previousRoom.y < this.y) grid[exits.top.y][exits.top.x] = 2; // 위쪽 출입구
-            if (previousRoom.y > this.y) grid[exits.bottom.y][exits.bottom.x] = 2; // 아래쪽 출입구
-            if (previousRoom.x < this.x) grid[exits.left.y][exits.left.x] = 2; // 왼쪽 출입구
-            if (previousRoom.x > this.x) grid[exits.right.y][exits.right.x] = 2; // 오른쪽 출입구
+            if (previousRoom.y < this.y) grid[exits.top.y][exits.top.x] = 2;
+            if (previousRoom.y > this.y) grid[exits.bottom.y][exits.bottom.x] = 2;
+            if (previousRoom.x < this.x) grid[exits.left.y][exits.left.x] = 2;
+            if (previousRoom.x > this.x) grid[exits.right.y][exits.right.x] = 2;
         }
 
-        // 랜덤 출입구 추가 (기본적으로 연결 보장 후 추가 출입구 생성)
-        Object.values(exits).forEach(exit => {
-            if (Math.random() < 0.5) grid[exit.y][exit.x] = 2;
-        });
-
         return grid;
+    }
+
+    // 🎯 **장애물 생성 (타일 단위)**
+    generateObjects() {
+        let objects = [];
+        let numObjects = Math.floor(Math.random() * 4) + 2; // 2~5개 생성
+
+        for (let i = 0; i < numObjects; i++) {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * (this.width - 2)) + 1;
+                y = Math.floor(Math.random() * (this.height - 2)) + 1;
+            } while (this.grid[y][x] !== 0); // 바닥(0) 위에만 생성
+
+            objects.push({ x, y, size: TILE_SIZE, type: "장애물" });
+            this.grid[y][x] = 3; // 장애물은 '3'으로 표시
+        }
+
+        return objects;
     }
 }
 
@@ -89,7 +101,7 @@ window.addEventListener("keyup", (e) => {
     if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
 });
 
-// 플레이어 이동 & 충돌 체크
+// 🎯 **플레이어 이동 & 충돌 체크**
 function movePlayer() {
     let nextX = player.x;
     let nextY = player.y;
@@ -99,17 +111,16 @@ function movePlayer() {
     if (keys.a) nextX -= player.speed;
     if (keys.d) nextX += player.speed;
 
-    // 타일 좌표 변환
     let tileX = Math.floor(nextX / TILE_SIZE);
     let tileY = Math.floor(nextY / TILE_SIZE);
 
-    // 벽 충돌 검사
-    if (currentRoom.grid[tileY][tileX] !== 1) {
+    // 벽 & 장애물 충돌 방지
+    if (currentRoom.grid[tileY][tileX] !== 1 && currentRoom.grid[tileY][tileX] !== 3) {
         player.x = nextX;
         player.y = nextY;
     }
 
-    // 출입구를 통해 새로운 방으로 이동
+    // 출입구 이동
     if (currentRoom.grid[tileY][tileX] === 2) {
         if (tileY === 0) moveToRoom(currentRoom.x, currentRoom.y - 1);
         if (tileY === ROOM_HEIGHT - 1) moveToRoom(currentRoom.x, currentRoom.y + 1);
@@ -127,13 +138,11 @@ function moveToRoom(x, y) {
     }
 
     currentRoom = visitedRooms[roomKey];
-
-    // 플레이어를 새로운 방의 출입구 근처로 이동
     player.x = GAME_WIDTH / 2;
     player.y = GAME_HEIGHT / 2;
 }
 
-// 방을 그리는 함수
+// 🎯 **방 & 장애물 그리기**
 function drawRoom() {
     for (let i = 0; i < currentRoom.height; i++) {
         for (let j = 0; j < currentRoom.width; j++) {
@@ -143,6 +152,8 @@ function drawRoom() {
                 ctx.fillStyle = "darkgray"; // 벽
             } else if (tile === 2) {
                 ctx.fillStyle = "yellow"; // 출입구
+            } else if (tile === 3) {
+                ctx.fillStyle = "red"; // 장애물
             } else {
                 ctx.fillStyle = "black"; // 바닥
             }
@@ -155,25 +166,13 @@ function drawRoom() {
 // 게임 루프
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 방 그리기
     drawRoom();
-
-    // 플레이어 이동
     movePlayer();
-
-    // 플레이어 그리기
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.size, player.size);
-
     requestAnimationFrame(gameLoop);
 }
 
-// 화면 크기 변경 시 비율 유지
-window.addEventListener("resize", () => {
-    canvas.width = GAME_WIDTH;
-    canvas.height = GAME_HEIGHT;
-});
-
 // 게임 시작
 gameLoop();
+
