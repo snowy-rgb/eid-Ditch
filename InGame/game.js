@@ -20,6 +20,21 @@ const keys = {
     d: false
 };
 
+// 방 데이터 구조
+class Room {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.exits = {}; // 방의 출입구 (위, 아래, 왼쪽, 오른쪽)
+    }
+}
+
+// 현재 방 설정
+let currentRoom = new Room(0, 0);
+const visitedRooms = { "0,0": currentRoom };
+
 // 키 입력 감지
 window.addEventListener("keydown", (e) => {
     if (keys.hasOwnProperty(e.key)) {
@@ -33,16 +48,43 @@ window.addEventListener("keyup", (e) => {
     }
 });
 
-// 플레이어 이동 로직
+// 플레이어 이동 로직 & 방 이동 체크
 function movePlayer() {
+    let prevX = player.x;
+    let prevY = player.y;
+
     if (keys.w) player.y -= player.speed;
     if (keys.s) player.y += player.speed;
     if (keys.a) player.x -= player.speed;
     if (keys.d) player.x += player.speed;
 
-    // 화면 밖으로 나가지 않게 제한
-    player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
-    player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+    // 화면 밖으로 나갔을 때 방 이동 처리
+    if (player.x < 0) {
+        player.x = canvas.width - player.size;
+        moveToRoom(currentRoom.x - 1, currentRoom.y);
+    } else if (player.x + player.size > canvas.width) {
+        player.x = 0;
+        moveToRoom(currentRoom.x + 1, currentRoom.y);
+    }
+
+    if (player.y < 0) {
+        player.y = canvas.height - player.size;
+        moveToRoom(currentRoom.x, currentRoom.y - 1);
+    } else if (player.y + player.size > canvas.height) {
+        player.y = 0;
+        moveToRoom(currentRoom.x, currentRoom.y + 1);
+    }
+}
+
+// 방 이동 함수
+function moveToRoom(x, y) {
+    const roomKey = `${x},${y}`;
+
+    if (!visitedRooms[roomKey]) {
+        visitedRooms[roomKey] = new Room(x, y);
+    }
+
+    currentRoom = visitedRooms[roomKey];
 }
 
 // 게임 루프
@@ -55,6 +97,10 @@ function gameLoop() {
     // 플레이어 그리기
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.size, player.size);
+
+    // 방 표시
+    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     requestAnimationFrame(gameLoop);
 }
