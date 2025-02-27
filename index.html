@@ -11,9 +11,14 @@
         <canvas id="background-canvas"></canvas> <!-- 애니메이션 효과용 -->
         <h1 class="game-title">이드 : 디치 결함</h1>
         <p class="game-subtitle">어둠 속에서 ‘이드’를 찾아라...</p>
-        <button id="start-btn">시작하기</button>
+        <button id="start-btn" onclick='GoToGame()'>시작하기</button>
         <button id="settings-btn">설정</button>
     </div>
     <script src="script.js"></script>
+    <script>
+        function GoToGame()  {
+              window.location.href = 'ditch.html'
+        }
+    </script>
 </body>
 </html>
