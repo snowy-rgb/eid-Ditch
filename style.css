@@ -57,13 +57,12 @@ canvas {
 
 button {
     font-size: 14px;
-    font-family: 'OneStoreMobileGothicPop';
+    font-family: 'OneStoreMobileGothicPop', sans-serif; /* 폰트 적용 */
     padding: 10px 20px;
     margin: 10px;
     background: transparent; /* 투명 버튼 */
     color: white;
     cursor: pointer;
-    font-family: 'Press Start 2P', cursive;
     z-index: 2;
     transition: 0.3s;
 }
