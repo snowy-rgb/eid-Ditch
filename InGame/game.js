@@ -148,12 +148,12 @@ function drawRoom() {
         for (let j = 0; j < currentRoom.width; j++) {
             let tile = currentRoom.grid[i][j];
 
+            console.log(tile); // 🔥 타일 값 출력해서 확인 (디버깅)
+
             if (tile === 1) {
-                ctx.fillStyle = "darkgray"; // 벽
+                ctx.fillStyle = "gray"; // 벽
             } else if (tile === 2) {
                 ctx.fillStyle = "yellow"; // 출입구
-            } else if (tile === 3) {
-                ctx.fillStyle = "red"; // 장애물
             } else {
                 ctx.fillStyle = "black"; // 바닥
             }
@@ -163,15 +163,30 @@ function drawRoom() {
     }
 }
 
+
 // 게임 루프
 function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawRoom();
-    movePlayer();
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // 화면 초기화
+
+    drawRoom(); // 방 그리기 (이 코드가 빠져있으면 화면이 안 보임)
+
+    movePlayer(); // 플레이어 이동 처리
+
     ctx.fillStyle = "white";
-    ctx.fillRect(player.x, player.y, player.size, player.size);
+    ctx.fillRect(player.x, player.y, player.size, player.size); // 플레이어 그리기
+
     requestAnimationFrame(gameLoop);
 }
+
+console.log("Canvas 크기:", canvas.width, canvas.height); // 🔥 캔버스 크기 디버깅
+
+// 캔버스 크기가 0이면 다시 설정
+if (canvas.width === 0 || canvas.height === 0) {
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+}
+
+
 
 // 게임 시작
 gameLoop();
