@@ -67,13 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let startPrompt = document.getElementById("startPrompt");
     let bgm = document.getElementById("bgm");
 
-    // 요소가 제대로 로드되었는지 확인
-    if (!openingScreen || !startGameButton || !introText) {
-        console.error("❌ 필수 요소가 없습니다. HTML 파일을 확인하세요!");
-        return;
-    }
-
-    // 프롤로그 텍스트 (한 줄씩 등장)
     const prologueTexts = [
         "깨어날 수 없는 꿈...",
         "당신은 어디에 있는가?",
@@ -106,10 +99,18 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => showIntroText(), 7000);
 
     function startGame() {
-        bgm.muted = false;
-        bgm.play().catch(error => console.log("🔇 자동 재생 실패:", error));
+        // 🔥 배경음이 정상적으로 실행되도록 설정
+        bgm.muted = false; // 음소거 해제
+        bgm.volume = 1.0; // 볼륨 100%
+        
+        bgm.play().then(() => {
+            console.log("🎵 배경음 재생 성공!");
+        }).catch(error => {
+            console.log("🔇 자동 재생 실패:", error);
+        });
 
-        // 인트로 화면 서서히 사라지기
+        // 🔥 인트로 화면 서서히 사라지기
+        openingScreen.style.transition = "opacity 1.5s ease-in-out";
         openingScreen.style.opacity = "0";
         setTimeout(() => {
             openingScreen.style.display = "none";
@@ -118,12 +119,14 @@ document.addEventListener("DOMContentLoaded", () => {
         document.removeEventListener("click", startGame);
         document.removeEventListener("keydown", startGame);
         document.removeEventListener("touchstart", startGame);
+        document.removeEventListener("touchend", startGame);
     }
 
-    // 사용자 입력 감지
+    // 🔥 모든 사용자 입력을 감지 (클릭, 키 입력, 터치)
     document.addEventListener("click", startGame, { once: true });
     document.addEventListener("keydown", startGame, { once: true });
     document.addEventListener("touchstart", startGame, { once: true });
+    document.addEventListener("touchend", startGame, { once: true }); // ✅ 모바일 터치 대응 추가
 });
 
 
