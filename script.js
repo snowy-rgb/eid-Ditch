@@ -68,9 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let bgm = document.getElementById("bgm");
 
     const prologueTexts = [
-        "깨어날 수 없는 꿈...",
-        "당신은 어디에 있는가?",
-        "이 곳은 현실인가, 허상인가?"
+        "Aqufluc_ studio",
+        "해당 게임은 팬게임이며, 비영리적임을 알립니다",
+        "(c)2024 EPIDGames. All rights reserved"
     ];
 
     let currentIndex = 0;
