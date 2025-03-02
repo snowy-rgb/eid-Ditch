@@ -31,15 +31,18 @@ const camera = {
 const chunkSeeds = {
     1: {
         environment: "Rainy Forest",
+        ground: { x: 0, y: canvas.height - 50, width: canvas.width * 2, height: 50 }, // 바닥 추가
         platforms: [{ x: 200, y: 400, width: 150, height: 20 }],
         obstacles: [{ x: 400, y: 450, width: 50, height: 50 }]
     },
     2: {
         environment: "Snowy Hill",
+        ground: { x: 0, y: canvas.height - 50, width: canvas.width * 2, height: 50 }, // 바닥 추가
         platforms: [{ x: 100, y: 350, width: 200, height: 20 }],
         obstacles: [{ x: 300, y: 420, width: 50, height: 50 }]
     }
 };
+
 
 const rainParticles = [];
 const snowParticles = [];
@@ -137,9 +140,13 @@ const ground = {
 
 // 바닥 그리기 함수
 function drawGround() {
-    ctx.fillStyle = "#3d3d3d"; // 바닥 색상
+    const ground = chunkSeeds[currentSeed].ground; // 현재 청크의 바닥 정보 가져오기
+    if (!ground) return; // 바닥이 없으면 그리지 않음
+
+    ctx.fillStyle = "#3d3d3d"; // 바닥 색상 (짙은 회색)
     ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
 }
+
 
 
 
@@ -204,6 +211,12 @@ function movePlayer() {
             player.velocityY = 0;
             player.onGround = true;
         }
+        // 바닥 충돌 감지
+        if (player.y + player.height > chunkSeeds[currentSeed].ground.y) {
+            player.y = chunkSeeds[currentSeed].ground.y - player.height; // 바닥 위에 고정
+            player.velocityY = 0;
+            player.onGround = true;
+        }
     });
 
     // 장애물 충돌 감지
@@ -251,7 +264,7 @@ function gameLoop() {
     ctx.translate(-camera.x, -camera.y);
 
     drawBackground(); // 배경 먼저 그리기
-    drawGround(); // 바닥 추가
+    drawGround(); // 청크 기반 바닥 추가
     drawChunkObjects(); // 플랫폼 & 장애물
     drawParticles(); // 비 & 눈 추가
 
@@ -262,6 +275,7 @@ function gameLoop() {
 
     requestAnimationFrame(gameLoop);
 }
+
 
 
 
