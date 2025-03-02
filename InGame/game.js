@@ -127,6 +127,21 @@ function initializeEnvironment() {
     }
 }
 
+// 바닥 데이터 추가
+const ground = {
+    x: 0,
+    y: canvas.height - 50,
+    width: canvas.width * 2, // 넓게 설정
+    height: 50
+};
+
+// 바닥 그리기 함수
+function drawGround() {
+    ctx.fillStyle = "#3d3d3d"; // 바닥 색상
+    ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+}
+
+
 
 // 현재 청크의 시드 값
 let currentSeed = 1;
@@ -234,7 +249,8 @@ function gameLoop() {
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
 
-    drawBackground(); // 배경 먼저 그리기!
+    drawBackground(); // 배경 먼저 그리기
+    drawGround(); // 바닥 추가
     drawChunkObjects(); // 플랫폼 & 장애물
     drawParticles(); // 비 & 눈 추가
 
