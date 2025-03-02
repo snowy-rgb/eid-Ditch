@@ -253,12 +253,18 @@ function drawChunkObjects() {
 
 // 전체 화면 모드 활성화
 function enterFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
-        });
+    let element = document.getElementById("gameCanvas"); // 캔버스를 전체 화면으로 변경
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
     }
 }
+
 
 
 // 게임 루프
@@ -326,37 +332,31 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 페이지 로드 후 0.5초 후 전체 화면 모드 실행
-    setTimeout(() => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
-            });
+    function enterFullScreen() {
+        const element = document.documentElement; // 전체 화면으로 만들 요소
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
         }
+    }
+
+    // 처음에 전체 화면 모드 실행
+    setTimeout(() => {
+        enterFullScreen();
     }, 500);
-});
 
-// 전체 화면이 풀리면 다시 실행
-document.addEventListener("fullscreenchange", () => {
-    if (!document.fullscreenElement) {
-        console.log("❌ 전체 화면이 해제됨! 다시 실행!");
-        document.documentElement.requestFullscreen().catch(err => {
-            console.log(`❌ 전체 화면 다시 활성화 실패: ${err.message}`);
-        });
-    }
-});
-
-// 유저 입력이 있을 때 전체 화면 유지
-document.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    }
-});
-
-document.addEventListener("keydown", () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    }
+    // 전체 화면 해제 감지 → 다시 실행
+    document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+            console.log("❌ 전체 화면이 해제됨! 다시 실행!");
+            enterFullScreen();
+        }
+    });
 });
 
 
