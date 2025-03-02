@@ -30,21 +30,87 @@ const camera = {
 // 시드 기반 청크 데이터
 const chunkSeeds = {
     1: {
+        environment: "Rainy Forest",
         platforms: [{ x: 200, y: 400, width: 150, height: 20 }],
         obstacles: [{ x: 400, y: 450, width: 50, height: 50 }]
     },
     2: {
+        environment: "Snowy Hill",
         platforms: [{ x: 100, y: 350, width: 200, height: 20 }],
         obstacles: [{ x: 300, y: 420, width: 50, height: 50 }]
-    },
-    3: {
-        platforms: [{ x: 150, y: 300, width: 250, height: 20 }],
-        obstacles: [{ x: 500, y: 500, width: 60, height: 60 }]
     }
 };
 
-// 현재 활성화된 시드
+const rainParticles = [];
+const snowParticles = [];
+
+// 비 애니메이션 생성
+function createRain() {
+    for (let i = 0; i < 50; i++) {
+        rainParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            speed: Math.random() * 3 + 2
+        });
+    }
+}
+
+// 눈 애니메이션 생성
+function createSnow() {
+    for (let i = 0; i < 50; i++) {
+        snowParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            speed: Math.random() * 2 + 1,
+            size: Math.random() * 3 + 2
+        });
+    }
+}
+
+// 비 & 눈 업데이트
+function updateParticles() {
+    if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
+        rainParticles.forEach(particle => {
+            particle.y += particle.speed;
+            if (particle.y > canvas.height) {
+                particle.y = 0;
+                particle.x = Math.random() * canvas.width;
+            }
+        });
+    } else if (chunkSeeds[currentSeed].environment === "Snowy Hill") {
+        snowParticles.forEach(particle => {
+            particle.y += particle.speed;
+            if (particle.y > canvas.height) {
+                particle.y = 0;
+                particle.x = Math.random() * canvas.width;
+            }
+        });
+    }
+}
+
+// 비 & 눈 그리기
+function drawParticles() {
+    ctx.fillStyle = "blue";
+    if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
+        rainParticles.forEach(particle => {
+            ctx.fillRect(particle.x, particle.y, 2, 10);
+        });
+    }
+
+    ctx.fillStyle = "white";
+    if (chunkSeeds[currentSeed].environment === "Snowy Hill") {
+        snowParticles.forEach(particle => {
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+}
+
+
+// 현재 청크의 시드 값
 let currentSeed = 1;
+
 
 // 키 입력 상태 저장
 const keys = {
@@ -160,6 +226,25 @@ function gameLoop() {
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
     ctx.restore(); // 원래 상태로 복귀
+
+    requestAnimationFrame(gameLoop);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    movePlayer();
+    updateCamera();
+    updateParticles(); // 자연 효과 업데이트
+
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+    
+    drawChunkObjects();
+    drawParticles(); // 자연 효과 그리기
+    
+    ctx.fillStyle = "white";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+    
+    ctx.restore();
 
     requestAnimationFrame(gameLoop);
 }
