@@ -214,6 +214,9 @@ function gameLoop() {
     // 카메라 업데이트
     updateCamera();
 
+    // 자연 환경 업데이트 (비 & 눈)
+    updateParticles(); 
+
     // 캔버스를 기준으로 좌표 이동
     ctx.save();
     ctx.translate(-camera.x, -camera.y); // 카메라 위치 보정
@@ -221,33 +224,19 @@ function gameLoop() {
     // 청크 내 오브젝트 그리기
     drawChunkObjects();
 
+    // 자연 효과(비 & 눈) 그리기
+    drawParticles(); 
+
     // 플레이어 그리기
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
     ctx.restore(); // 원래 상태로 복귀
 
-    requestAnimationFrame(gameLoop);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    movePlayer();
-    updateCamera();
-    updateParticles(); // 자연 효과 업데이트
-
-    ctx.save();
-    ctx.translate(-camera.x, -camera.y);
-    
-    drawChunkObjects();
-    drawParticles(); // 자연 효과 그리기
-    
-    ctx.fillStyle = "white";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    
-    ctx.restore();
-
+    // 게임 루프 반복 (한 번만 실행)
     requestAnimationFrame(gameLoop);
 }
+
 
 // 게임 시작
 gameLoop();
