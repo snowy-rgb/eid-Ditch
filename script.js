@@ -129,5 +129,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("touchend", startGame, { once: true }); // ✅ 모바일 터치 대응 추가
 });
 
+// 전체 화면 모드 활성화
+function enterFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
+        });
+    }
+}
+
 
 
