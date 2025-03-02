@@ -301,21 +301,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// 전체 화면 실행 함수
+// ✅ 캔버스 크기 업데이트 함수
+function updateCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+// ✅ 전체 화면 실행 함수
 function requestFullScreen() {
     let element = document.documentElement;
     if (element.requestFullscreen) {
-        element.requestFullscreen().catch(err => {
+        element.requestFullscreen().then(() => {
+            updateCanvasSize(); // 🔥 전체 화면 진입 후 캔버스 크기 조정
+        }).catch(err => {
             console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
         });
     } else if (element.mozRequestFullScreen) {
         element.mozRequestFullScreen();
+        updateCanvasSize();
     } else if (element.webkitRequestFullscreen) {
         element.webkitRequestFullscreen();
+        updateCanvasSize();
     } else if (element.msRequestFullscreen) {
         element.msRequestFullscreen();
+        updateCanvasSize();
     }
 }
+
+// ✅ 전체 화면 변경 감지 → 캔버스 크기 업데이트
+document.addEventListener("fullscreenchange", () => {
+    if (document.fullscreenElement) {
+        console.log("✅ 전체 화면 모드 활성화됨");
+    } else {
+        console.log("❌ 전체 화면 해제됨! 캔버스 크기 업데이트");
+    }
+    updateCanvasSize();
+});
+
+// ✅ 화면 크기 변경 감지 → 캔버스 크기 업데이트
+window.addEventListener("resize", updateCanvasSize);
+
+// ✅ 유저 입력이 감지되면 전체 화면 실행
+document.addEventListener("click", requestFullScreen);
+document.addEventListener("keydown", requestFullScreen);
+document.addEventListener("touchstart", requestFullScreen);
 
 // 전체 화면 해제 감지 → 다시 실행
 document.addEventListener("fullscreenchange", () => {
