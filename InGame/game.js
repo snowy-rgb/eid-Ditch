@@ -227,16 +227,17 @@ function updateCamera() {
 
 // 청크 내 오브젝트(플랫폼 & 장애물) 그리기
 function drawChunkObjects() {
+    ctx.fillStyle = "blue"; // 플랫폼 색상
     chunkSeeds[currentSeed].platforms.forEach(platform => {
-        ctx.fillStyle = "blue";
         ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
     });
 
+    ctx.fillStyle = "red"; // 장애물 색상
     chunkSeeds[currentSeed].obstacles.forEach(obstacle => {
-        ctx.fillStyle = "red";
         ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     });
 }
+
 
 // 게임 루프
 function gameLoop() {
