@@ -319,45 +319,42 @@ document.addEventListener("keydown", (event) => {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 전체 화면으로 전환
-    function enterFullScreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
-            });
-        }
+    // 세션 스토리지에서 "fullscreen" 값을 확인
+    let shouldGoFullscreen = sessionStorage.getItem("fullscreen");
+    if (shouldGoFullscreen === "true") {
+        sessionStorage.removeItem("fullscreen"); // 전체화면 모드 실행 후 값 제거
+        requestFullScreen();
     }
-
-    enterFullScreen(); // 페이지 로드 후 전체 화면 자동 실행
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    function enterFullScreen() {
-        const element = document.documentElement; // 전체 화면으로 만들 요소
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) {
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) {
-            element.msRequestFullscreen();
-        }
+// 전체 화면 실행 함수
+function requestFullScreen() {
+    let element = document.documentElement;
+    if (element.requestFullscreen) {
+        element.requestFullscreen().catch(err => {
+            console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
+        });
+    } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
     }
+}
 
-    // 처음에 전체 화면 모드 실행
-    setTimeout(() => {
-        enterFullScreen();
-    }, 500);
-
-    // 전체 화면 해제 감지 → 다시 실행
-    document.addEventListener("fullscreenchange", () => {
-        if (!document.fullscreenElement) {
-            console.log("❌ 전체 화면이 해제됨! 다시 실행!");
-            enterFullScreen();
-        }
-    });
+// 전체 화면 해제 감지 → 다시 실행
+document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) {
+        console.log("❌ 전체 화면이 해제됨! 다시 실행 대기 중...");
+    }
 });
+
+// 유저 입력이 감지되면 전체 화면 실행
+document.addEventListener("click", requestFullScreen);
+document.addEventListener("keydown", requestFullScreen);
+document.addEventListener("touchstart", requestFullScreen);
+
 
 
 
