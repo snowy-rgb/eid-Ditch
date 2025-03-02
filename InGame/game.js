@@ -324,73 +324,80 @@ document.addEventListener("fullscreenchange", () => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    function enterFullScreen() {
-        let element = document.documentElement;
-        if (element.requestFullscreen) {
-            element.requestFullscreen().then(() => {
-                console.log("✅ 전체 화면 활성화됨");
-                document.body.style.cursor = "none"; // 마우스 숨기기
-            }).catch(err => {
-                console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
-            });
+// 종료 창 표시 여부
+let isExitPromptVisible = false;
+
+// 종료 확인 창 표시
+function showExitPrompt() {
+    const exitPrompt = document.getElementById("exitPrompt");
+    if (exitPrompt) {
+        exitPrompt.style.display = "block";
+        isExitPromptVisible = true;
+    }
+}
+
+// 종료 확인 창 숨기기
+function hideExitPrompt() {
+    const exitPrompt = document.getElementById("exitPrompt");
+    if (exitPrompt) {
+        exitPrompt.style.display = "none";
+        isExitPromptVisible = false;
+    }
+}
+
+// 전체 화면 실행 함수
+function requestFullScreen() {
+    let element = document.documentElement;
+    if (element.requestFullscreen) {
+        element.requestFullscreen().catch(err => {
+            console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
+        });
+    } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+    }
+}
+
+// ESC 키 기본 동작 차단 & 종료 창 띄우기
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        event.preventDefault(); // 🔥 ESC 기본 동작 차단 (전체 화면 해제 방지)
+
+        if (!isExitPromptVisible) {
+            showExitPrompt(); // 종료 창 표시
+        } else {
+            hideExitPrompt(); // 종료 창 숨기기
         }
     }
-
-    // 사용자 입력 (클릭, 키 입력, 터치) 감지 후 전체 화면 실행
-    function enableFullScreen() {
-        enterFullScreen();
-        document.removeEventListener("click", enableFullScreen);
-        document.removeEventListener("keydown", enableFullScreen);
-        document.removeEventListener("touchstart", enableFullScreen);
-    }
-
-    document.addEventListener("click", enableFullScreen);
-    document.addEventListener("keydown", enableFullScreen);
-    document.addEventListener("touchstart", enableFullScreen);
 });
 
+// ENTER 키로 게임 종료, ESC로 계속 진행
+document.addEventListener("keydown", (event) => {
+    if (isExitPromptVisible) {
+        if (event.key === "Enter") {
+            window.location.href = "index.html"; // 메인 화면으로 이동
+        } else if (event.key === "Escape") {
+            hideExitPrompt(); // ESC로 창 닫기
+        }
+    }
+});
+
+// 전체 화면이 해제되면 다시 실행
+document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) {
+        console.log("❌ 전체 화면이 해제됨! 다시 실행!");
+        requestFullScreen(); // 🔥 다시 전체 화면 실행
+    }
+});
 
 // 유저 입력이 감지되면 전체 화면 실행
 document.addEventListener("click", requestFullScreen);
 document.addEventListener("keydown", requestFullScreen);
 document.addEventListener("touchstart", requestFullScreen);
 
-let isExitPromptVisible = false;
-
-function showExitPrompt() {
-    const exitPrompt = document.getElementById("exitPrompt");
-    exitPrompt.style.display = "block";
-    isExitPromptVisible = true;
-}
-
-function hideExitPrompt() {
-    const exitPrompt = document.getElementById("exitPrompt");
-    exitPrompt.style.display = "none";
-    isExitPromptVisible = false;
-}
-
-// ESC 키를 눌렀을 때 종료 확인 창 띄우기
-document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-        if (!isExitPromptVisible) {
-            showExitPrompt();
-        } else {
-            hideExitPrompt();
-        }
-    }
-});
-
-// 엔터를 누르면 종료, ESC를 누르면 계속 진행
-document.addEventListener("keydown", (event) => {
-    if (isExitPromptVisible) {
-        if (event.key === "Enter") {
-            window.location.href = "index.html"; // 메인 화면으로 이동
-        } else if (event.key === "Escape") {
-            hideExitPrompt();
-        }
-    }
-});
 
 
 
