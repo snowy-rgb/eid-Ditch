@@ -27,6 +27,25 @@ const camera = {
     height: canvas.height
 };
 
+// 시드 기반 청크 데이터
+const chunkSeeds = {
+    1: {
+        platforms: [{ x: 200, y: 400, width: 150, height: 20 }],
+        obstacles: [{ x: 400, y: 450, width: 50, height: 50 }]
+    },
+    2: {
+        platforms: [{ x: 100, y: 350, width: 200, height: 20 }],
+        obstacles: [{ x: 300, y: 420, width: 50, height: 50 }]
+    },
+    3: {
+        platforms: [{ x: 150, y: 300, width: 250, height: 20 }],
+        obstacles: [{ x: 500, y: 500, width: 60, height: 60 }]
+    }
+};
+
+// 현재 활성화된 시드
+let currentSeed = 1;
+
 // 키 입력 상태 저장
 const keys = {
     left: false,
@@ -72,13 +91,51 @@ function movePlayer() {
         player.velocityY = 0;
         player.onGround = true;
     }
+
+    // 플랫폼 충돌 감지
+    chunkSeeds[currentSeed].platforms.forEach(platform => {
+        if (
+            player.y + player.height > platform.y &&
+            player.y + player.height < platform.y + 10 &&
+            player.x + player.width > platform.x &&
+            player.x < platform.x + platform.width
+        ) {
+            player.y = platform.y - player.height;
+            player.velocityY = 0;
+            player.onGround = true;
+        }
+    });
+
+    // 장애물 충돌 감지
+    chunkSeeds[currentSeed].obstacles.forEach(obstacle => {
+        if (
+            player.x + player.width > obstacle.x &&
+            player.x < obstacle.x + obstacle.width &&
+            player.y + player.height > obstacle.y &&
+            player.y < obstacle.y + obstacle.height
+        ) {
+            player.x -= player.speed * (keys.right ? 1 : -1); // 장애물 충돌 시 이동 차단
+        }
+    });
 }
 
 // 카메라 업데이트 함수 (플레이어를 따라가기)
 function updateCamera() {
-    // 카메라가 플레이어를 따라가도록 설정 (부드러운 이동)
     camera.x += (player.x - camera.x - canvas.width / 2) * 0.1;
     camera.y += (player.y - camera.y - canvas.height / 2) * 0.1;
+}
+
+// 청크 내 오브젝트(플랫폼 & 장애물) 그리기
+function drawChunkObjects() {
+    chunkSeeds[currentSeed].platforms.forEach(platform => {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+    });
+
+    chunkSeeds[currentSeed].obstacles.forEach(obstacle => {
+        ctx.fillStyle = "red";
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    });
 }
 
 // 게임 루프
@@ -94,6 +151,9 @@ function gameLoop() {
     // 캔버스를 기준으로 좌표 이동
     ctx.save();
     ctx.translate(-camera.x, -camera.y); // 카메라 위치 보정
+
+    // 청크 내 오브젝트 그리기
+    drawChunkObjects();
 
     // 플레이어 그리기
     ctx.fillStyle = "white";
