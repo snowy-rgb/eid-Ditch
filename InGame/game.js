@@ -311,6 +311,7 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+
 document.addEventListener("DOMContentLoaded", () => {
     // 전체 화면으로 전환
     function enterFullScreen() {
@@ -323,6 +324,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
     enterFullScreen(); // 페이지 로드 후 전체 화면 자동 실행
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 페이지 로드 후 0.5초 후 전체 화면 모드 실행
+    setTimeout(() => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
+            });
+        }
+    }, 500);
+});
+
+// 전체 화면이 풀리면 다시 실행
+document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) {
+        console.log("❌ 전체 화면이 해제됨! 다시 실행!");
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log(`❌ 전체 화면 다시 활성화 실패: ${err.message}`);
+        });
+    }
+});
+
+// 유저 입력이 있을 때 전체 화면 유지
+document.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    }
+});
+
+document.addEventListener("keydown", () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    }
+});
+
+
 
 // 게임 시작
 gameLoop();
