@@ -291,32 +291,6 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// 종료 확인 창 표시
-let isExitPromptVisible = false;
-
-function showExitPrompt() {
-    const exitPrompt = document.getElementById("exitPrompt");
-    exitPrompt.style.display = "block";
-    isExitPromptVisible = true;
-}
-
-// 종료 확인 창 숨기기
-function hideExitPrompt() {
-    const exitPrompt = document.getElementById("exitPrompt");
-    exitPrompt.style.display = "none";
-    isExitPromptVisible = false;
-}
-
-document.addEventListener("keydown", (event) => {
-    if (isExitPromptVisible) {
-        if (event.key === "Enter") {
-            window.location.href = "index.html"; // 게임 종료 후 메인 화면으로 이동
-        } else if (event.key === "Escape") {
-            hideExitPrompt(); // ESC 키로 창 닫기
-        }
-    }
-});
-
 
 document.addEventListener("DOMContentLoaded", () => {
     // 세션 스토리지에서 "fullscreen" 값을 확인
