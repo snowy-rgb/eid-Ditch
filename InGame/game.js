@@ -311,8 +311,18 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    // 전체 화면으로 전환
+    function enterFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
+            });
+        }
+    }
 
-
+    enterFullScreen(); // 페이지 로드 후 전체 화면 자동 실행
+});
 
 // 게임 시작
 gameLoop();
