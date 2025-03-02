@@ -307,26 +307,52 @@ function updateCanvasSize() {
     canvas.height = window.innerHeight;
 }
 
-// ✅ 전체 화면 실행 함수
+// ✅ 전체 화면이 해제되었을 때 메시지를 띄우고 게임 화면을 숨기기
+document.addEventListener("fullscreenchange", () => {
+    const fullscreenPrompt = document.getElementById("fullscreenPrompt");
+    
+    if (!document.fullscreenElement) {
+        console.log("❌ 전체 화면이 해제됨! 다시 요청 필요");
+        fullscreenPrompt.style.display = "block"; // 메시지 표시
+        canvas.style.display = "none"; // 게임 화면 숨기기
+    } else {
+        console.log("✅ 전체 화면 모드 활성화됨");
+        fullscreenPrompt.style.display = "none"; // 메시지 숨기기
+        canvas.style.display = "block"; // 게임 화면 다시 보이기
+    }
+});
+
+// ✅ 메시지를 클릭하거나 아무 키나 누르면 다시 전체 화면 전환
+document.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+        requestFullScreen();
+    }
+});
+
+document.addEventListener("keydown", () => {
+    if (!document.fullscreenElement) {
+        requestFullScreen();
+    }
+});
+
+// ✅ 전체 화면 실행 함수 (다시 추가)
 function requestFullScreen() {
     let element = document.documentElement;
     if (element.requestFullscreen) {
         element.requestFullscreen().then(() => {
-            updateCanvasSize(); // 🔥 전체 화면 진입 후 캔버스 크기 조정
+            console.log("✅ 전체 화면으로 복귀");
         }).catch(err => {
             console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
         });
     } else if (element.mozRequestFullScreen) {
         element.mozRequestFullScreen();
-        updateCanvasSize();
     } else if (element.webkitRequestFullscreen) {
         element.webkitRequestFullscreen();
-        updateCanvasSize();
     } else if (element.msRequestFullscreen) {
         element.msRequestFullscreen();
-        updateCanvasSize();
     }
 }
+
 
 // ✅ 전체 화면 변경 감지 → 캔버스 크기 업데이트
 document.addEventListener("fullscreenchange", () => {
