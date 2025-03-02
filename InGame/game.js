@@ -107,10 +107,29 @@ function drawParticles() {
     }
 }
 
+// 배경 색상 및 이미지 설정
+function drawBackground() {
+    if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
+        ctx.fillStyle = "#1d1f2a"; // 어두운 숲 배경
+    } else if (chunkSeeds[currentSeed].environment === "Snowy Hill") {
+        ctx.fillStyle = "#d6e6f2"; // 밝은 눈 덮인 배경
+    }
+    ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
+}
+
+function initializeEnvironment() {
+    let env = chunkSeeds[currentSeed].environment;
+
+    if (env === "Rainy Forest") {
+        createRain(); // 비 생성
+    } else if (env === "Snowy Hill") {
+        createSnow(); // 눈 생성
+    }
+}
+
 
 // 현재 청크의 시드 값
 let currentSeed = 1;
-
 
 // 키 입력 상태 저장
 const keys = {
@@ -208,34 +227,25 @@ function drawChunkObjects() {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 플레이어 이동 적용
     movePlayer();
-
-    // 카메라 업데이트
     updateCamera();
+    updateParticles(); // 자연 효과 업데이트
 
-    // 자연 환경 업데이트 (비 & 눈)
-    updateParticles(); 
-
-    // 캔버스를 기준으로 좌표 이동
     ctx.save();
-    ctx.translate(-camera.x, -camera.y); // 카메라 위치 보정
+    ctx.translate(-camera.x, -camera.y);
 
-    // 청크 내 오브젝트 그리기
-    drawChunkObjects();
+    drawBackground(); // 배경 먼저 그리기!
+    drawChunkObjects(); // 플랫폼 & 장애물
+    drawParticles(); // 비 & 눈 추가
 
-    // 자연 효과(비 & 눈) 그리기
-    drawParticles(); 
-
-    // 플레이어 그리기
     ctx.fillStyle = "white";
     ctx.fillRect(player.x, player.y, player.width, player.height);
 
-    ctx.restore(); // 원래 상태로 복귀
+    ctx.restore();
 
-    // 게임 루프 반복 (한 번만 실행)
     requestAnimationFrame(gameLoop);
 }
+
 
 
 // 게임 시작
