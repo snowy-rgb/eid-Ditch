@@ -350,10 +350,74 @@ document.addEventListener("fullscreenchange", () => {
     }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    function enterFullScreen() {
+        let element = document.documentElement;
+        if (element.requestFullscreen) {
+            element.requestFullscreen().then(() => {
+                console.log("✅ 전체 화면 활성화됨");
+                document.body.style.cursor = "none"; // 마우스 숨기기
+            }).catch(err => {
+                console.log(`❌ 전체 화면 활성화 실패: ${err.message}`);
+            });
+        }
+    }
+
+    // 사용자 입력 (클릭, 키 입력, 터치) 감지 후 전체 화면 실행
+    function enableFullScreen() {
+        enterFullScreen();
+        document.removeEventListener("click", enableFullScreen);
+        document.removeEventListener("keydown", enableFullScreen);
+        document.removeEventListener("touchstart", enableFullScreen);
+    }
+
+    document.addEventListener("click", enableFullScreen);
+    document.addEventListener("keydown", enableFullScreen);
+    document.addEventListener("touchstart", enableFullScreen);
+});
+
+
 // 유저 입력이 감지되면 전체 화면 실행
 document.addEventListener("click", requestFullScreen);
 document.addEventListener("keydown", requestFullScreen);
 document.addEventListener("touchstart", requestFullScreen);
+
+let isExitPromptVisible = false;
+
+function showExitPrompt() {
+    const exitPrompt = document.getElementById("exitPrompt");
+    exitPrompt.style.display = "block";
+    isExitPromptVisible = true;
+}
+
+function hideExitPrompt() {
+    const exitPrompt = document.getElementById("exitPrompt");
+    exitPrompt.style.display = "none";
+    isExitPromptVisible = false;
+}
+
+// ESC 키를 눌렀을 때 종료 확인 창 띄우기
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        if (!isExitPromptVisible) {
+            showExitPrompt();
+        } else {
+            hideExitPrompt();
+        }
+    }
+});
+
+// 엔터를 누르면 종료, ESC를 누르면 계속 진행
+document.addEventListener("keydown", (event) => {
+    if (isExitPromptVisible) {
+        if (event.key === "Enter") {
+            window.location.href = "index.html"; // 메인 화면으로 이동
+        } else if (event.key === "Escape") {
+            hideExitPrompt();
+        }
+    }
+});
+
 
 
 
