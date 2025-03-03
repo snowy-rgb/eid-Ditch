@@ -528,8 +528,7 @@ function gameLoop() {
 // 게임 시작 시 초기 환경 설정
 function initializeEnvironment() {
     if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
-        createRain();
-        createFog();
+        rainEffect.initialize(); // ✅ 비 & 안개 초기화
     }
 }
 
