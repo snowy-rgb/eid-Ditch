@@ -158,7 +158,7 @@ const rainEffect = new RainEffectManager();
 // 배경 색상 및 이미지 설정
 function drawBackground() {
     if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
-        ctx.fillStyle = "#1d1f2a"; // 어두운 숲 배경
+        ctx.fillStyle = "#B4D9D5"; // 어두운 숲 배경
     } else if (chunkSeeds[currentSeed].environment === "Snowy Hill") {
         ctx.fillStyle = "#d6e6f2"; // 밝은 눈 덮인 배경
     }
