@@ -162,16 +162,18 @@ function drawVignette() {
     if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌫 RainForest에서만 실행
 
     let gradient = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2, canvas.width / 3, // 중심부
+        canvas.width / 2, canvas.height / 2, canvas.width / 4, // 중심부 (더 작은 크기)
         canvas.width / 2, canvas.height / 2, canvas.width // 바깥쪽
     );
 
-    gradient.addColorStop(0, "rgba(0, 0, 0, 0)");  // 중심부 투명
-    gradient.addColorStop(1, "rgba(0, 0, 0, 0.5)"); // 가장자리 어두운 안개 느낌
+    gradient.addColorStop(0, "rgba(0, 0, 0, 0)");   // 중심부는 완전 투명
+    gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.3)"); // 중간 부분은 연한 어둠
+    gradient.addColorStop(1, "rgba(0, 0, 0, 0.7)");   // 가장자리 안개 강화
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
+
 
 
 function initializeEnvironment() {
@@ -319,31 +321,6 @@ function enterFullScreen() {
     }
 }
 
-
-
-// 게임 루프
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    movePlayer();
-    updateCamera();
-    updateParticles(); // 자연 효과 업데이트
-
-    ctx.save();
-    ctx.translate(-camera.x, -camera.y);
-
-    drawBackground(); // 배경 먼저 그리기
-    drawGround(); // 청크 기반 바닥 추가
-    drawChunkObjects(); // 플랫폼 & 장애물
-    drawParticles(); // 비 & 눈 추가
-
-    ctx.fillStyle = "white";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-
-    ctx.restore();
-
-    requestAnimationFrame(gameLoop);
-}
 
 
 document.addEventListener("DOMContentLoaded", () => {
