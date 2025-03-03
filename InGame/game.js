@@ -93,21 +93,6 @@ class RainEffectManager {
         }
     }
 
-    function drawVignette() {
-        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌫 RainForest에서만 실행
-    
-        let gradient = ctx.createRadialGradient(
-            canvas.width / 2, canvas.height / 2, canvas.width / 3, // 중심부
-            canvas.width / 2, canvas.height / 2, canvas.width // 바깥쪽
-        );
-    
-        gradient.addColorStop(0, "rgba(0, 0, 0, 0)");  // 중심부 투명
-        gradient.addColorStop(1, "rgba(0, 0, 0, 0.5)"); // 가장자리 어두운 안개 느낌
-    
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
 
     // 업데이트 (비, 물 튀김, 안개)
     update() {
@@ -171,6 +156,22 @@ function drawBackground() {
     }
     ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 }
+
+
+ function drawVignette() {
+    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌫 RainForest에서만 실행
+    
+     let gradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, canvas.width / 3, // 중심부
+        canvas.width / 2, canvas.height / 2, canvas.width // 바깥쪽
+     );
+    
+    gradient.addColorStop(0, "rgba(0, 0, 0, 0)");  // 중심부 투명
+    radient.addColorStop(1, "rgba(0, 0, 0, 0.5)"); // 가장자리 어두운 안개 느낌
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+ }
 
 function initializeEnvironment() {
     let env = chunkSeeds[currentSeed].environment;
