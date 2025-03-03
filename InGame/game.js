@@ -44,71 +44,121 @@ const chunkSeeds = {
 };
 
 
-const rainParticles = [];
-const snowParticles = [];
-
-// 비 애니메이션 생성
-function createRain() {
-    for (let i = 0; i < 50; i++) {
-        rainParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            speed: Math.random() * 3 + 2
-        });
+// 🌧 비 효과 관리 클래스
+class RainEffectManager {
+    constructor() {
+        this.rainParticles = [];
+        this.splashParticles = [];
+        this.fogParticles = [];
     }
-}
 
-// 눈 애니메이션 생성
-function createSnow() {
-    for (let i = 0; i < 50; i++) {
-        snowParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            speed: Math.random() * 2 + 1,
-            size: Math.random() * 3 + 2
-        });
+    // 비 & 안개 생성
+    initialize() {
+        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
+
+        this.rainParticles = [];
+        this.splashParticles = [];
+        this.fogParticles = [];
+
+        for (let i = 0; i < 50; i++) {
+            this.rainParticles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                speed: Math.random() * 3 + 2
+            });
+        }
+
+        for (let i = 0; i < 30; i++) {
+            this.fogParticles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                opacity: Math.random() * 0.3 + 0.2,
+                speedX: Math.random() * 0.5
+            });
+        }
     }
-}
 
-// 비 & 눈 업데이트
-function updateParticles() {
-    if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
-        rainParticles.forEach(particle => {
+    // 물 튀기는 효과 추가
+    createSplash(x, y) {
+        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
+
+        for (let i = 0; i < 5; i++) {
+            this.splashParticles.push({
+                x: x,
+                y: y,
+                velocityX: (Math.random() - 0.5) * 2,
+                velocityY: Math.random() * -2,
+                alpha: 1
+            });
+        }
+    }
+
+    // 업데이트 (비, 물 튀김, 안개)
+    update() {
+        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
+
+        // 비 업데이트
+        this.rainParticles.forEach((particle, index) => {
             particle.y += particle.speed;
-            if (particle.y > canvas.height) {
-                particle.y = 0;
-                particle.x = Math.random() * canvas.width;
+            if (particle.y >= chunkSeeds[currentSeed].ground.y) {
+                this.createSplash(particle.x, chunkSeeds[currentSeed].ground.y);
+                this.rainParticles.splice(index, 1);
+                this.rainParticles.push({ x: Math.random() * canvas.width, y: 0, speed: Math.random() * 3 + 2 });
             }
         });
-    } else if (chunkSeeds[currentSeed].environment === "Snowy Hill") {
-        snowParticles.forEach(particle => {
-            particle.y += particle.speed;
-            if (particle.y > canvas.height) {
-                particle.y = 0;
-                particle.x = Math.random() * canvas.width;
+
+        // 안개 업데이트
+        this.fogParticles.forEach((particle) => {
+            particle.x += particle.speedX;
+            if (particle.x > canvas.width) {
+                particle.x = -50;
+            }
+        });
+
+        // 물 튀김 효과 업데이트
+        this.splashParticles.forEach((particle, index) => {
+            particle.x += particle.velocityX;
+            particle.y += particle.velocityY;
+            particle.velocityY += 0.1;
+            particle.alpha -= 0.05;
+            if (particle.alpha <= 0) {
+                this.splashParticles.splice(index, 1);
             }
         });
     }
-}
 
-// 비 & 눈 그리기
-function drawParticles() {
-    ctx.fillStyle = "blue";
-    if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
-        rainParticles.forEach(particle => {
+    // 그리기 (비, 물 튀김, 안개)
+    draw() {
+        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
+
+        // 비 그리기
+        ctx.fillStyle = "blue";
+        this.rainParticles.forEach(particle => {
             ctx.fillRect(particle.x, particle.y, 2, 10);
         });
-    }
 
-    ctx.fillStyle = "white";
-    if (chunkSeeds[currentSeed].environment === "Snowy Hill") {
-        snowParticles.forEach(particle => {
+        // 물 튀기는 효과
+        ctx.fillStyle = "rgba(173, 216, 230, 0.7)";
+        this.splashParticles.forEach(particle => {
+            ctx.globalAlpha = particle.alpha;
             ctx.beginPath();
-            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
             ctx.fill();
         });
+        ctx.globalAlpha = 1;
+
+        // 안개 효과
+        ctx.fillStyle = "rgba(200, 200, 200, 0.2)";
+        this.fogParticles.forEach(particle => {
+            ctx.globalAlpha = particle.opacity;
+            ctx.fillRect(particle.x, particle.y, 100, 50);
+        });
+        ctx.globalAlpha = 1;
     }
 }
+
+// 🌧 RainEffectManager 인스턴스 생성
+const rainEffect = new RainEffectManager();
 
 // 배경 색상 및 이미지 설정
 function drawBackground() {
@@ -457,129 +507,6 @@ const rainParticles = []; // 비 입자
 const splashParticles = []; // 물 튀김 효과
 const fogParticles = []; // 안개 효과
 
-// 비 애니메이션 생성 (Rainy Forest에서만 실행)
-function createRain() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌧 RainForest에서만 작동
-
-    rainParticles.length = 0; // 기존 비 제거 후 새로 생성
-    for (let i = 0; i < 50; i++) {
-        rainParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            speed: Math.random() * 3 + 2
-        });
-    }
-}
-
-// 안개 애니메이션 생성 (Rainy Forest에서만 실행)
-function createFog() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌫 RainForest에서만 작동
-
-    fogParticles.length = 0; // 기존 안개 제거 후 새로 생성
-    for (let i = 0; i < 30; i++) {
-        fogParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            opacity: Math.random() * 0.3 + 0.2, // 안개 투명도
-            speedX: Math.random() * 0.5, // 천천히 이동
-        });
-    }
-}
-
-// 물 튀기는 효과 생성 (Rainy Forest에서만 실행)
-function createSplash(x, y) {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌧 RainForest에서만 작동
-
-    for (let i = 0; i < 5; i++) {
-        splashParticles.push({
-            x: x,
-            y: y,
-            velocityX: (Math.random() - 0.5) * 2, // 랜덤한 좌우 방향
-            velocityY: Math.random() * -2, // 위로 튀는 힘
-            alpha: 1 // 점점 사라지게 만들기
-        });
-    }
-}
-
-// 비 업데이트 (Rainy Forest에서만 실행)
-function updateRain() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌧 RainForest에서만 작동
-
-    rainParticles.forEach((particle, index) => {
-        particle.y += particle.speed;
-
-        // 바닥과 충돌하면 물방울 생성
-        if (particle.y >= ground.y) {
-            createSplash(particle.x, ground.y);
-            rainParticles.splice(index, 1); // 원래 비는 제거
-            rainParticles.push({ x: Math.random() * canvas.width, y: 0, speed: Math.random() * 3 + 2 });
-        }
-    });
-}
-
-// 안개 업데이트 (Rainy Forest에서만 실행)
-function updateFog() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌫 RainForest에서만 작동
-
-    fogParticles.forEach((particle) => {
-        particle.x += particle.speedX;
-        if (particle.x > canvas.width) {
-            particle.x = -50; // 안개가 화면 끝에 닿으면 다시 왼쪽에서 등장
-        }
-    });
-}
-
-// 물 튀기는 효과 업데이트 (Rainy Forest에서만 실행)
-function updateSplash() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌧 RainForest에서만 작동
-
-    splashParticles.forEach((particle, index) => {
-        particle.x += particle.velocityX;
-        particle.y += particle.velocityY;
-        particle.velocityY += 0.1; // 중력 적용
-        particle.alpha -= 0.05; // 점점 사라짐
-
-        if (particle.alpha <= 0) {
-            splashParticles.splice(index, 1); // 완전히 사라지면 제거
-        }
-    });
-}
-
-// 비 & 물 튀기는 효과 그리기 (Rainy Forest에서만 실행)
-function drawRain() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌧 RainForest에서만 작동
-
-    ctx.fillStyle = "blue";
-    rainParticles.forEach(particle => {
-        ctx.fillRect(particle.x, particle.y, 2, 10);
-    });
-}
-
-// 물 튀기는 효과 그리기 (Rainy Forest에서만 실행)
-function drawSplash() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌧 RainForest에서만 작동
-
-    ctx.fillStyle = "rgba(173, 216, 230, 0.7)"; // 연한 파란색
-    splashParticles.forEach(particle => {
-        ctx.globalAlpha = particle.alpha;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
-        ctx.fill();
-    });
-    ctx.globalAlpha = 1; // 원래대로 돌려놓기
-}
-
-// 안개 효과 그리기 (Rainy Forest에서만 실행)
-function drawFog() {
-    if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return; // 🌫 RainForest에서만 작동
-
-    ctx.fillStyle = "rgba(200, 200, 200, 0.2)";
-    fogParticles.forEach(particle => {
-        ctx.globalAlpha = particle.opacity;
-        ctx.fillRect(particle.x, particle.y, 100, 50); // 안개 크기
-    });
-    ctx.globalAlpha = 1;
-}
 
 // 기존 게임 루프에 추가
 function gameLoop() {
