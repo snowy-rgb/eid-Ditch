@@ -9,7 +9,7 @@ canvas.height = window.innerHeight;
 // 플레이어 속성
 const player = {
     x: 100,
-    y: canvas.height - 150,
+    y: ground.y - 50, // 땅 위에 정확히 위치
     width: 50,
     height: 50,
     speed: 5,
@@ -189,9 +189,9 @@ function initializeEnvironment() {
 // 바닥 데이터 추가
 const ground = {
     x: 0,
-    y: canvas.height - 50,
-    width: canvas.width * 2, // 넓게 설정
-    height: 50
+    y: canvas.height - 30, // 기존보다 살짝 낮게 설정
+    width: canvas.width * 2, // 더 넓게 설정
+    height: 100 // 바닥을 두껍게 해서 화면 아래까지 확장
 };
 
 // 바닥 그리기 함수
