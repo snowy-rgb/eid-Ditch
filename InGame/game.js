@@ -123,13 +123,6 @@ class RainEffectManager {
             }
         });
 
-        // 안개 업데이트
-        this.fogParticles.forEach((particle) => {
-            particle.x += particle.speedX;
-            if (particle.x > canvas.width) {
-                particle.x = -50;
-            }
-        });
 
         // 물 튀김 효과 업데이트
         this.splashParticles.forEach((particle, index) => {
@@ -163,13 +156,6 @@ class RainEffectManager {
         });
         ctx.globalAlpha = 1;
 
-        // 안개 효과
-        ctx.fillStyle = "rgba(200, 200, 200, 0.2)";
-        this.fogParticles.forEach(particle => {
-            ctx.globalAlpha = particle.opacity;
-            ctx.fillRect(particle.x, particle.y, 100, 50);
-        });
-        ctx.globalAlpha = 1;
     }
 }
 
