@@ -167,8 +167,8 @@ function drawVignette() {
     );
 
     gradient.addColorStop(0, "rgba(0, 0, 0, 0)");   // 중심부는 완전 투명
-    gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.3)"); // 중간 부분은 연한 어둠
-    gradient.addColorStop(1, "rgba(0, 0, 0, 0.7)");   // 가장자리 안개 강화
+    gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.5)"); // 중간 부분은 연한 어둠
+    gradient.addColorStop(1, "rgba(0, 0, 0, 1)");   // 가장자리 안개 강화
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
