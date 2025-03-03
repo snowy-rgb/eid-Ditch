@@ -512,18 +512,30 @@ const fogParticles = []; // 안개 효과
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    updateRain(); // 🌧 RainForest에서만 실행
-    updateFog(); // 🌫 RainForest에서만 실행
-    updateSplash(); // 🌧 RainForest에서만 실행
-    
+    movePlayer();
+    updateCamera();
+
+    // 🌧 Rainy Forest에서만 비 & 안개 & 물 튀기는 효과 업데이트
+    rainEffect.update();  
+
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y);
+
     drawBackground();
     drawGround();
-    drawRain(); // 🌧 RainForest에서만 실행
-    drawSplash(); // 🌧 RainForest에서만 실행
-    drawFog(); // 🌫 RainForest에서만 실행
+    drawChunkObjects();
+    
+    // 🌧 Rainy Forest에서만 효과 그리기
+    rainEffect.draw();  
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    ctx.restore();
 
     requestAnimationFrame(gameLoop);
 }
+
 
 // 게임 시작 시 초기 환경 설정
 function initializeEnvironment() {
