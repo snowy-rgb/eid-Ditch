@@ -506,7 +506,6 @@ function gameLoop() {
 
     drawBackground();
     drawGround();
-    drawChunkObjects();
     
     // 🌧 Rainy Forest에서만 효과 그리기
     rainEffect.draw();  
