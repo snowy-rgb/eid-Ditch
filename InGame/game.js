@@ -53,38 +53,88 @@ const chunkSeeds = {
 
 
 // 🌧 비 효과 관리 클래스
+// 🌧 RainEffectManager 클래스 (비 내리는 효과 개선)
 class RainEffectManager {
     constructor() {
         this.rainParticles = [];
-        this.splashParticles = [];
-        this.fogParticles = [];
     }
 
-    // 비 & 안개 생성
+    // 비 생성
     initialize() {
         if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
 
         this.rainParticles = [];
-        this.splashParticles = [];
-        this.fogParticles = [];
 
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 150; i++) { // ✅ 더 많은 비 생성
             this.rainParticles.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                speed: Math.random() * 3 + 2
-            });
-        }
-
-        for (let i = 0; i < 30; i++) {
-            this.fogParticles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                opacity: Math.random() * 0.3 + 0.2,
-                speedX: Math.random() * 0.5
+                speed: Math.random() * 6 + 4, // ✅ 비가 더 빠르게 내리도록 설정 (기존 3 + 2 → 6 + 4)
+                opacity: Math.random() * 0.5 + 0.3, // ✅ 반투명 효과 적용 (0.3 ~ 0.8)
+                length: Math.random() * 15 + 10 // ✅ 빗방울 길이 추가 (10 ~ 25px)
             });
         }
     }
+
+    // 비 업데이트
+    update() {
+        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
+
+        this.rainParticles.forEach((particle) => {
+            particle.y += particle.speed;
+
+            // 바닥에 도달하면 다시 위로
+            if (particle.y >= ground.y) {
+                particle.y = 0;
+                particle.x = Math.random() * canvas.width;
+            }
+        });
+    }
+
+    // 비 그리기
+    draw() {
+        if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.7)"; // ✅ 흰색 비 (투명도 추가)
+        ctx.lineWidth = 2;
+
+        this.rainParticles.forEach(particle => {
+            ctx.globalAlpha = particle.opacity;
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(particle.x, particle.y + particle.length); // ✅ 비 길이 반영
+            ctx.stroke();
+        });
+
+        ctx.globalAlpha = 1; // 투명도 초기화
+    }
+}
+
+// ✅ RainEffectManager 인스턴스 생성
+const rainEffect = new RainEffectManager();
+
+// ✅ 환경 초기화 (Rainy Forest에서만 비 생성)
+function initializeEnvironment() {
+    if (chunkSeeds[currentSeed].environment === "Rainy Forest") {
+        rainEffect.initialize(); // 🌧 비 & 안개 초기화
+    }
+}
+
+// ✅ 게임 루프에서 반영
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    movePlayer();
+    updateCamera();
+
+    drawBackground();
+    drawGround();
+
+    rainEffect.update(); // 🌧 비 업데이트
+    rainEffect.draw();   // 🌧 비 그리기
+
+    requestAnimationFrame(gameLoop);
+}
 
     // 물 튀기는 효과 추가
     createSplash(x, y) {
