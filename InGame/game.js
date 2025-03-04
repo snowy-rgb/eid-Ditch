@@ -107,8 +107,8 @@ class RainEffectManager {
         });
 
         ctx.globalAlpha = 1; // 투명도 초기화
+        
     }
-}
 
 // ✅ RainEffectManager 인스턴스 생성
 const rainEffect = new RainEffectManager();
@@ -135,7 +135,6 @@ function gameLoop() {
 
     requestAnimationFrame(gameLoop);
 }
-
     // 물 튀기는 효과 추가
     createSplash(x, y) {
         if (chunkSeeds[currentSeed].environment !== "Rainy Forest") return;
